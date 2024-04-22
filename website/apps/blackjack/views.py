@@ -11,7 +11,7 @@ def display_basic_strategy(request):
         for card in DECK_VALUE:
             key = 'hard '+ str(total)+','+card
             dec_list.append(basic_strategy[key])
-    for total in range(21, 13, -1):
+    for total in range(21, 12, -1):
         if total == 21:
             dec_list.append('AT')
         else:
