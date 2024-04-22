@@ -1,0 +1,40 @@
+{% load static %}
+{% load filters %}
+
+<table class="IBJ" cellspacing="0" cellpadding="0" border="0">
+    <thead>
+        <tr>
+            <th width="60px"></th>
+            {% for card in deck_value %}
+                <th width="60px">{{ card }}</th>
+            {% endfor %}
+        </tr>
+    </thead>
+    <tbody>
+        {% for dec in dec_list %}
+            {% if forloop.counter0|divisibleby:11 %}<tr>{% endif %}
+                {% if  color_dict|dictvalue:dec %}
+                    <td bgcolor="{{ color_dict|dictvalue:dec }}">{{ dec }}</td>
+                {% else %}
+                <th>{{ dec }}</th>
+                {% endif %}
+            {% if forloop.counter|divisibleby:11 %}</tr>{% endif %}
+        {% endfor %}
+    </tbody>
+</table>
+
+<style>
+    .IBJ{
+        border-collapse:collapse;
+        margin-bottom:10px;
+        color:#333333;
+    }
+    .IBJ td, th{
+        text-align: center;
+        border: 1px solid #cecece;
+    }
+
+    .IBJ th{
+        background-color: #ddeeff;
+    }
+</style>

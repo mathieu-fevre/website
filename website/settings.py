@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     
     'website.apps.core',
+    'website.apps.blackjack',
 ]
 
 MIDDLEWARE = [
