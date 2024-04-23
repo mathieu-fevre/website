@@ -97,7 +97,7 @@ def display_basic_strategy(request):
         'dec_list': dec_list,
         'deck_value': DECK_VALUE,
         'color_dict': color_dict,
-        # 'dec_list_no_double': dec_list_no_double,
+        'dec_list_no_double': dec_list_no_double,
         # 'dec_list_no_split': dec_list_no_split,
         # 'dec_list_no_double_no_split': dec_list_no_double_no_split,
     }
