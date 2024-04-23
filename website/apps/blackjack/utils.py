@@ -466,7 +466,7 @@ def prob_result_bank(number_of_simulations, deck, card=None):
 
 c='A'
 t=time.time()
-print(prob_result_bank(5000000, initial_deck2, card=c))
+print(prob_result_bank(500000, initial_deck2, card=c))
 t2=time.time()
 print('temps total: ' + str(t2-t))
 

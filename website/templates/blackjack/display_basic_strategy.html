@@ -1,30 +1,124 @@
+{% extends "base.html" %}
+
 {% load static %}
 {% load filters %}
 
-<h1>Basic strategy</h1>
-<table class="BS" cellspacing="0" cellpadding="0" border="0">
-    <thead>
-        <tr>
-            <th width="60px"></th>
-            {% for card in deck_value %}
-                <th width="60px">{{ card }}</th>
-            {% endfor %}
-        </tr>
-    </thead>
-    <tbody>
-        {% for dec in dec_list %}
-            {% if forloop.counter0|divisibleby:11 %}<tr>{% endif %}
-                {% if  color_dict|dictvalue:dec %}
-                    <td bgcolor="{{ color_dict|dictvalue:dec }}">{{ dec }}</td>
-                {% else %}
-                <th>{{ dec }}</th>
-                {% endif %}
-            {% if forloop.counter|divisibleby:11 %}</tr>{% endif %}
-        {% endfor %}
-    </tbody>
-</table>
+{% block title %}Basic Strategy{% endblock %}
+{% block content %}
+<h3>1. Basic strategy</h3>
+<div class="row">
+    <div class="column">
+        <h4>Basic strategy</h4>
+    </div>
+    <div class="column">
+        <h4>Basic statregy no double</h4>
+    </div>
+<div class="row">
+    <div class="column">
+        <table class="BS" cellspacing="0" cellpadding="0" border="0">
+            <thead>
+                <tr>
+                    <th width="60px"></th>
+                    {% for card in deck_value %}
+                        <th width="60px">{{ card }}</th>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for dec in dec_list %}
+                    {% if forloop.counter0|divisibleby:11 %}<tr>{% endif %}
+                        {% if  color_dict|dictvalue:dec %}
+                            <td bgcolor="{{ color_dict|dictvalue:dec }}">{{ dec }}</td>
+                        {% else %}
+                        <th>{{ dec }}</th>
+                        {% endif %}
+                    {% if forloop.counter|divisibleby:11 %}</tr>{% endif %}
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <div class="column">
+        <table class="BS" cellspacing="0" cellpadding="0" border="0">
+            <thead>
+                <tr>
+                    <th width="60px"></th>
+                    {% for card in deck_value %}
+                        <th width="60px">{{ card }}</th>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for dec in dec_list_no_double %}
+                    {% if forloop.counter0|divisibleby:11 %}<tr>{% endif %}
+                        {% if  color_dict|dictvalue:dec %}
+                            <td bgcolor="{{ color_dict|dictvalue:dec }}">{{ dec }}</td>
+                        {% else %}
+                        <th>{{ dec }}</th>
+                        {% endif %}
+                    {% if forloop.counter|divisibleby:11 %}</tr>{% endif %}
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
 
-<h1>results</h1>
+<div class="row">
+    <div class="column">
+        <h4>Basic strategy no split</h4>
+    </div>
+    <div class="column">
+        <h4>Basic statregy no double no split</h4>
+    </div>
+<div class="row">
+    <div class="column">
+        <table class="BS" cellspacing="0" cellpadding="0" border="0">
+            <thead>
+                <tr>
+                    <th width="60px"></th>
+                    {% for card in deck_value %}
+                        <th width="60px">{{ card }}</th>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for dec in dec_list_no_split %}
+                    {% if forloop.counter0|divisibleby:11 %}<tr>{% endif %}
+                        {% if  color_dict|dictvalue:dec %}
+                            <td bgcolor="{{ color_dict|dictvalue:dec }}">{{ dec }}</td>
+                        {% else %}
+                        <th>{{ dec }}</th>
+                        {% endif %}
+                    {% if forloop.counter|divisibleby:11 %}</tr>{% endif %}
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <div class="column">
+        <table class="BS" cellspacing="0" cellpadding="0" border="0">
+            <thead>
+                <tr>
+                    <th width="60px"></th>
+                    {% for card in deck_value %}
+                        <th width="60px">{{ card }}</th>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for dec in dec_list_no_double_no_split %}
+                    {% if forloop.counter0|divisibleby:11 %}<tr>{% endif %}
+                        {% if  color_dict|dictvalue:dec %}
+                            <td bgcolor="{{ color_dict|dictvalue:dec }}">{{ dec }}</td>
+                        {% else %}
+                        <th>{{ dec }}</th>
+                        {% endif %}
+                    {% if forloop.counter|divisibleby:11 %}</tr>{% endif %}
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<h3>1. Results</h3>
 
 print(compare('T2', '3', '-', 'H', 10000000, initial_deck2))
 (-25.44778, -23.13322)
@@ -140,19 +234,8 @@ print(compare('33', '7', 'H', 'S', 10000000, initial_deck2))
 (-15.36563, -16.51287)
 'temps total': 355
 
+{% endblock content %}
 
-<style>
-    .BS{
-        border-collapse:collapse;
-        margin-bottom:10px;
-        color:#333333;
-    }
-    .BS td, th{
-        text-align: center;
-        border: 1px solid #cecece;
-    }
+{% block style %}
 
-    .BS th{
-        background-color: #ddeeff;
-    }
-</style>
+{% endblock style %}
