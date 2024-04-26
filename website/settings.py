@@ -120,7 +120,7 @@ TIME_ZONE = 'Asia/Tokyo'
 USE_I18N = True
 
 USE_TZ = True
-
+USE_THOUSAND_SEPARATOR = True
 LOGIN_URL = '/accounts/login'
 LOGIN_REDIRECT_URL = 'home'
 LOGOUT_REDIRECT_URL = 'home'

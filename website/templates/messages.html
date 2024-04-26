@@ -1,0 +1,15 @@
+{% if messages %}
+	<div id="mes_end">
+		{% for message in messages %}
+            {% if message.tags == 'error' %}
+                <span style="color:red">{{ message }}</span>
+            {% elif message.tags == 'warning' %}
+                <span style="color:red; font-size: 110%;" >{{ message }}</span>
+            {% else %}
+                {{ message }}
+            {% endif %}
+            <br>
+		{% endfor %}
+	</div>
+{% endif %}
+<br>

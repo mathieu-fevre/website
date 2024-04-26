@@ -1,6 +1,14 @@
+from django.forms import modelformset_factory
 from django.shortcuts import render, redirect
 
 from website.apps.blackjack.basic_strategy import DECK_VALUE, create_basic_strategy, create_basic_strategy_no_double, create_basic_strategy_no_double_no_split, create_basic_strategy_no_split
+from website.apps.blackjack.forms import ComparisonDecisionAddForm, ComparisonDecisionForm
+from website.apps.blackjack.models import ComparisonDecision
+from django.contrib import messages
+from multiprocessing import Process
+from django import db
+
+from website.apps.blackjack.utils import create_new_comparison
 
 
 def display_basic_strategy(request):
@@ -102,3 +110,47 @@ def display_basic_strategy(request):
         'dec_list_no_double_no_split': dec_list_no_double_no_split,
     }
     return render(request, 'blackjack/display_basic_strategy.html', contexts)
+
+def compare_results(request):
+    comp_dec = ComparisonDecision.objects.all()
+    form = ComparisonDecisionAddForm()
+    if request.POST:
+        if 'add' in request.POST:
+            form = ComparisonDecisionAddForm(request.POST)
+            if form.is_valid():
+                db.connections.close_all()
+                hand = form.cleaned_data['hand']
+                bank_card = form.cleaned_data['bank_card']
+                decision1 = form.cleaned_data['decision1']
+                decision2 = form.cleaned_data['decision2']
+                number_of_decks = form.cleaned_data['number_of_decks']
+                number_of_simulations = form.cleaned_data['number_of_simulations']
+                p = Process(target=create_new_comparison, args=(hand, bank_card, decision1, decision2, number_of_decks, number_of_simulations))
+                p.start()
+                messages.add_message(request, messages.SUCCESS, 'Simulations started')
+                return redirect(request.get_full_path())
+            else:
+                messages.add_message(request, messages.ERROR, 'Error in the form')
+    contexts = {
+        'comp_dec': comp_dec,
+        'form': form,
+    }
+    return render(request, 'blackjack/compare_results.html', contexts)
+
+def compare_add(request):
+    Formset = modelformset_factory(ComparisonDecision, form=ComparisonDecisionForm, extra=1, can_delete=True)
+    formset = Formset(queryset=ComparisonDecision.objects.all())
+    if request.POST:
+        if 'save' in request.POST:
+            formset = Formset(request.POST)
+            if formset.is_valid():
+                formset.save()
+                messages.add_message(request, messages.SUCCESS, 'Comparison added !')
+                return redirect(request.get_full_path())
+            else:
+                messages.add_message(request, messages.ERROR, 'Comparison failed !')
+    contexts = {
+        'formset': formset
+    }
+    return render(request, 'blackjack/compare_add.html', contexts)
+    

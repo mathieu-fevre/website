@@ -5,7 +5,8 @@
 body{
 	padding:10px;
 	/* background-color: #660707; */
-    background-color: #f4f4ff;
+    background-color: #f1f1f1;
+    /* background-color: #f4f4ff; */
 	font-family:"Times New Roman", Times, serif;
 }
 
@@ -14,7 +15,7 @@ body{
     margin-bottom:10px;
     color:#333333;
 }
-.BS td, th{
+.BS td, .BS th{
     text-align: center;
     border: 1px solid #cecece;
 }
@@ -31,7 +32,7 @@ h3{
 	font-weight:bold;
 	padding-top:8px;
 	padding-left:6px;
-	background-color:#ddeeff;
+	background-color:#8fbeec;
 	margin-top: 2px;
 	margin-right: 0px;
 	margin-bottom: 8px;
@@ -54,4 +55,47 @@ h3{
     content: "";
     clear: both;
     display: table;
+}
+
+.table_list{
+	border-collapse:collapse;
+	margin-bottom:10px;
+	color:#333333;
+	border-right:#cecece solid 1px;
+	background-color:#fafaff;
+}
+
+.table_list th{
+	padding-left:3px;
+	padding-right:3px;
+	padding-top:1px;
+	padding-bottom:1px;
+	font-size:15px;
+	color:#333333;
+	background-color:#ddeeff;
+	font-weight:normal;
+	text-align:center;
+    border:black solid 1px;
+}
+.table_list td{
+	padding-left:3px;
+	padding-right:3px;
+	padding-top:1px;
+	padding-bottom:1px;
+	color:#333333;
+	font-size:15px;
+	border:black solid 1px;
+    text-align: center;
+}
+
+#navi{
+	padding-bottom:10px;
+	margin-bottom:10px;
+	border-bottom:solid #191919 2px;
+}
+
+#navi a{
+	font-size:15px;
+	color:#215dc6;
+	text-decoration:none;
 }

@@ -1,13 +1,18 @@
 import random
 from math import floor
-from basic_strategy import create_basic_strategy, DECK_VALUE, create_basic_strategy_no_double, create_basic_strategy_no_double_no_split, create_basic_strategy_no_split
+from website.apps.blackjack.basic_strategy import create_basic_strategy, DECK_VALUE, create_basic_strategy_no_double, create_basic_strategy_no_double_no_split, create_basic_strategy_no_split
 import time
 from copy import deepcopy
 import matplotlib.pyplot as plt
 from matplotlib.ticker import PercentFormatter
 import numpy as np
+from django import db
+from multiprocessing import Process
+import django
+django.setup()
 
-from card_counter import high_low_count, true_count
+from website.apps.blackjack.card_counter import high_low_count, true_count
+from website.apps.blackjack.models import ComparisonDecision
 
 basic_strategy = create_basic_strategy()
 basic_strategy_no_double = create_basic_strategy_no_double()
@@ -18,6 +23,17 @@ initial_deck = {'2': 4*number_of_decks, '3': 4*number_of_decks, '4': 4*number_of
 initial_deck2 = {'2': 4*number_of_decks, '3': 4*number_of_decks, '4': 4*number_of_decks, '5': 4*number_of_decks, '6': 4*number_of_decks, '7': 4*number_of_decks, '8': 4*number_of_decks, '9': 4*number_of_decks, 'T': 16*number_of_decks, 'A': 4*number_of_decks}
 cut_decks = 4.5
 
+def reset_all():
+    global basic_strategy, basic_strategy_no_double, basic_strategy_no_split, basic_strategy_no_double_no_split, number_of_decks, initial_deck, initial_deck2, cut_decks
+    basic_strategy = create_basic_strategy()
+    basic_strategy_no_double = create_basic_strategy_no_double()
+    basic_strategy_no_split = create_basic_strategy_no_split()
+    basic_strategy_no_double_no_split = create_basic_strategy_no_double_no_split()
+    number_of_decks = 6
+    initial_deck = {'2': 4*number_of_decks, '3': 4*number_of_decks, '4': 4*number_of_decks, '5': 4*number_of_decks, '6': 4*number_of_decks, '7': 4*number_of_decks, '8': 4*number_of_decks, '9': 4*number_of_decks, 'T': 16*number_of_decks, 'A': 4*number_of_decks}
+    initial_deck2 = {'2': 4*number_of_decks, '3': 4*number_of_decks, '4': 4*number_of_decks, '5': 4*number_of_decks, '6': 4*number_of_decks, '7': 4*number_of_decks, '8': 4*number_of_decks, '9': 4*number_of_decks, 'T': 16*number_of_decks, 'A': 4*number_of_decks}
+    cut_decks = 4.5
+    
 def draw_card(deck):
     total = sum(deck.values())
     number = floor(total*random.random()+1)
@@ -54,7 +70,7 @@ def value_hand(hand):
 def bank_score(hand, deck):
     value = value_hand(hand)
     while value < 17:
-        card = draw_card_no_deck(deck)
+        card, deck = draw_card(deck)
         hand += card
         value = value_hand(hand)
     return hand, deck
@@ -148,7 +164,7 @@ def player_actions(hand1, hand2, hand3, bank_hand, deck, decision=None, bet1=Non
         if bet1:
             return hand1, hand2, hand3, deck, bet1, bet2, bet3
     hand1, hand2, hand3, deck, decision, bet1 = player_single_action(hand1, hand2, hand3, bank_hand, deck)
-    if not hand2 or bet2 or decision == 'S':
+    if not hand2 or bet2 or decision == 'S' or decision == 'H':
         if hand2 and hand1[0]=='A' and hand2[0]=='A':
             return hand1, hand2, hand3, deck, 1, 1, bet3 # Quand on split des As, une carte par as, pas de blackjack et pas de 3ieme jeu.
         return player_actions(hand1, hand2, hand3, bank_hand, deck, decision, bet1, bet2, bet3)
@@ -416,6 +432,7 @@ def player_plays_particular_hand(hand, bank_hand, hands_number, deck):
                     gain += bet2 * who_wins(hand2, bank_hand2)
                 if hand3:
                     gain += bet3 * who_wins(hand3, bank_hand2)
+    # print('hand1: '+hand1, 'hand2: '+hand2, 'hand3: '+ hand3, 'bank_hand:' + bank_hand2, 'bet1: '+str(bet1), 'bet2: '+str(bet2), 'bet3: '+str(bet3), 'gain: '+ str(gain))
     return gain
 
 def calc_ev_particular_hand(hand, bank_hand, hands_number, deck):
@@ -433,6 +450,7 @@ def calc_ev_particular_hand_decision_changed(hand, bank_hand, hands_number, deck
         if decision != 'S' and decision != 'D':
             basic_strategy_no_double_no_split[key] = decision
     ev = calc_ev_particular_hand(hand, bank_hand, hands_number, deck)
+    reset_all()
     return ev
 
 def compare(hand, bank_hand, decision1, decision2, hands_number, deck):
@@ -464,110 +482,34 @@ def prob_result_bank(number_of_simulations, deck, card=None):
         percentage_dict[key] = 100 * float(result_dict[key]) /number_of_simulations
     return percentage_dict
 
-c='A'
-t=time.time()
-print(prob_result_bank(500000, initial_deck2, card=c))
-t2=time.time()
-print('temps total: ' + str(t2-t))
+def create_new_comparison(hand, bank_card, decision1, decision2, number_of_decks, number_of_simulations):
+    deck = {'2': 4*number_of_decks, '3': 4*number_of_decks, '4': 4*number_of_decks, '5': 4*number_of_decks, '6': 4*number_of_decks, '7': 4*number_of_decks, '8': 4*number_of_decks, '9': 4*number_of_decks, 'T': 16*number_of_decks, 'A': 4*number_of_decks}
+    ev1, ev2 = compare(hand, bank_card, decision1, decision2, number_of_simulations, deck)
+    key = hand_to_key(hand) +','+bank_card
+    theoritical_decision = basic_strategy[key]
+    if ev1>ev2:
+        exp_decision = decision1
+    else:
+        exp_decision = decision2
+    ComparisonDecision.objects.create(hand=hand, bank_card=bank_card, decision1=decision1, decision2=decision2, ev1=ev1, ev2=ev2,
+                                        theoritical_decision=theoritical_decision, exp_decision=exp_decision,
+                                        number_of_decks=number_of_decks, number_of_simulations=number_of_simulations)
+    db.connections.close_all()
 
-# c=0
-# print(c)
-# t=time.time()
-# print(compare('A3', '4', 'H', 'D', 10000000, initial_deck2))
-# t2=time.time()
-# print('temps total: ' + str(t2-t))
-
-# c=1
-# print(c)
-# t=time.time()
-# print(compare('T7', 'A', 'H', '-', 10000000, initial_deck2))
-# t2=time.time()
-# print('temps total: ' + str(t2-t))
-
-# c=2
-# print(c)
-# t=time.time()
-# print(compare('T6', 'A', 'H', '-', 10000000, initial_deck2))
-# t2=time.time()
-# print('temps total: ' + str(t2-t))
-
-# c=3
-# print(c)
-# t=time.time()
-# print(compare('65', 'T', 'H', 'D', 10000000, initial_deck2))
-# t2=time.time()
-# print('temps total: ' + str(t2-t))
-
-# c=4
-# print(c)
-# t=time.time()
-# print(compare('A7', 'A', 'H', '-', 10000000, initial_deck2))
-# t2=time.time()
-# print('temps total: ' + str(t2-t))
-
-# c=5
-# print(c)
-# t=time.time()
-# print(compare('63', '2', 'H', 'D', 10000000, initial_deck2))
-# t2=time.time()
-# print('temps total: ' + str(t2-t))
-
-# c=6
-# print(c)
-# t=time.time()
-# print(compare('66', '7', 'H', 'S', 10000000, initial_deck2))
-# t2=time.time()
-# print('temps total: ' + str(t2-t))
-
-# c=7
-# print(c)
-# t=time.time()
-# print(compare('66', '2', 'H', 'S', 10000000, initial_deck2))
-# t2=time.time()
-# print('temps total: ' + str(t2-t))
-
-# c=8
-# print(c)
-# t=time.time()
-# print(compare('22', '2', 'H', 'S', 10000000, initial_deck2))
-# t2=time.time()
-# print('temps total: ' + str(t2-t))
-
-# c=9
-# print(c)
-# t=time.time()
-# print(compare('22', '3', 'H', 'S', 10000000, initial_deck2))
-# t2=time.time()
-# print('temps total: ' + str(t2-t))
-
-# c=10
-# print(c)
-# t=time.time()
-# print(compare('22', '7', 'H', 'S', 10000000, initial_deck2))
-# t2=time.time()
-# print('temps total: ' + str(t2-t))
-
-# c=11
-# print(c)
-# t=time.time()
-# print(compare('33', '7', 'H', 'S', 10000000, initial_deck2))
-# t2=time.time()
-# print('temps total: ' + str(t2-t))
-
-# t=time.time()
-# print(get_br_result_percentage_with_max(2500, 5000, 500, initial_deck2, 50000))
-# t2=time.time()
-# print('temps total: '+ str(t2-t))
-# trace_trajectory(100, 10000, initial_deck2)
-# trace_trajectory_with_bet(100, 10, 100, initial_deck2)
-
-# t=time.time()
-# print(get_percentage_with_max(50, 100, 500, initial_deck2, 10000))
-# # print(get_percentage_ruin(50, 500, initial_deck2, 1000))
-# t2=time.time()
-# print('temps total: ' + str(t2-t))
-
-# t=time.time()
-# print(calc_ev(5000000, initial_deck2))
-# t2=time.time()
-# print('temps total: ' + str(t2-t))
+def initialize_comparisons():
+    number_of_decks = 6
+    number_of_simulations = 10000000
+    # create_new_comparison('22', '3', 'H', 'S', number_of_decks, number_of_simulations)
+    # create_new_comparison('22', '7', 'H', 'S', number_of_decks, number_of_simulations)
+    # create_new_comparison('22', '4', 'H', 'S', number_of_decks, number_of_simulations)
+    # create_new_comparison('22', '5', 'H', 'S', number_of_decks, number_of_simulations)
+    # create_new_comparison('22', '6', 'H', 'S', number_of_decks, number_of_simulations)
+    # create_new_comparison('22', '8', 'H', 'S', number_of_decks, number_of_simulations)
+    # create_new_comparison('22', '9', 'H', 'S', number_of_decks, number_of_simulations)
+    # create_new_comparison('22', 'T', 'H', 'S', number_of_decks, number_of_simulations)
+    # create_new_comparison('22', 'A', 'H', 'S', number_of_decks, number_of_simulations)
+    for card in DECK_VALUE:
+        Process(target=create_new_comparison, args=('88', card, 'H', 'S', number_of_decks, number_of_simulations)).start()
+        Process(target=create_new_comparison, args=('99', card, 'H', 'S', number_of_decks, number_of_simulations)).start()
+        # Process(target=create_new_comparison, args=('77', card, 'H', 'S', number_of_decks, number_of_simulations)).start()
+    return 0

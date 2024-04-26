@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% load static %}
+{% load filters %}
+
+{% block title %}Compare add{% endblock %}
+
+{% block nav %}
+{% include "blackjack/nav_blackjack.html" %}
+{% endblock nav %}
+
+{% block content %}
+{% include "messages.html" %}
+<form method="post">
+    {% csrf_token %}
+    {{ formset.management_form }}
+    <table class="table_list" width="1000">
+        <thead>
+            <tr>
+                <th>Hand</th>
+                <th>Bank card</th>
+                <th>Decision 1</th>
+                <th>Decision 2</th>
+                <th>EV1</th>
+                <th>EV2</th>
+                <th>Experimental decision</th>
+                <th>Theoritical decision</th>
+                <th>Number of decks</th>
+                <th>Number of simulations</th>
+                <th>Delete</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for form in formset %}
+            {{ form.id }}
+            <tr>
+            {% for field in form.visible_fields %}
+                <td>
+                {{ field.errors }}
+                {{ field }}
+                </td>
+            {% endfor %}
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <button type="submit" name="save">submit</button>
+</form>
+
+{% endblock %}  

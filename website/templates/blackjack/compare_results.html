@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+
+{% load static %}
+{% load filters %}
+
+{% block title %}Compare Results{% endblock %}
+
+{% block nav %}
+{% include "blackjack/nav_blackjack.html" %}
+{% endblock nav %}
+
+{% block content %}
+
+{% include "messages.html" %}
+<form method="post">
+    {% csrf_token %}
+    <table class="table_list" width="300px">
+        <thead>
+            <tr>
+                <th>Hand</th>
+                <th>Bank card</th>
+                <th>Decision 1</th>
+                <th>Decision 2</th>
+                <th>Number of decks</th>
+                <th>Number of simulations</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>{{ form.hand }}</td>
+                <td>{{ form.bank_card }}</td>
+                <td>{{ form.decision1 }}</td>
+                <td>{{ form.decision2 }}</td>
+                <td>{{ form.number_of_decks }}</td>
+                <td>{{ form.number_of_simulations }}</td>
+            </tr>
+        </tbody>
+    </table>
+    <button type="submit" name="add">Add</button>
+</form>
+<br>
+<table class="table_list" width="700">
+    <thead>
+        <tr>
+            <th>Hand</th>
+            <th>Bank card</th>
+            <th>Decision 1</th>
+            <th>Decision 2</th>
+            <th>EV1</th>
+            <th>EV2</th>
+            <th>Experimental decision</th>
+            <th>Theoritical decision</th>
+            <th>Same decision</th>
+            <th>Number of decks</th>
+            <th>Number of simulations</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for row in  comp_dec%}
+        <tr {% if row.exp_decision == row.theoritical_decision %} bgcolor="#83f28f" {% else %} bgcolor="#FF3632" {% endif %}>
+            <td>{{ row.hand }}</td>
+            <td>{{ row.bank_card }}</td>
+            <td>{{ row.decision1 }}</td>
+            <td>{{ row.decision2 }}</td>
+            <td style="text-wrap:nowrap;">{{ row.ev1|floatformat:2 }} %</td>
+            <td style="text-wrap:nowrap;">{{ row.ev2|floatformat:2 }} %</td>
+            <td>{{ row.exp_decision }}</td>
+            <td>{{ row.theoritical_decision }}</td>
+            <td>
+                {% if row.exp_decision == row.theoritical_decision %}
+                    ✔
+                {% else %}
+                    ❌
+                {% endif %}
+            </td>
+            <td>{{ row.number_of_decks }}</td>
+            <td>{{ row.number_of_simulations }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% endblock %}  
