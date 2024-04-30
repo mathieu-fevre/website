@@ -510,6 +510,7 @@ def create_new_hand_decision_ev(hand, bank_card, decision, number_of_decks, numb
     db.connections.close_all()
 
 def launch():
+    create_new_hand_decision_ev('65', '5', 'D', 6, 1000)
     number_of_simulations = 10000000
     number_of_decks = 6
     decision = '-'
