@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django_crontab',
     
     'website.apps.core',
     'website.apps.blackjack',
@@ -150,6 +151,10 @@ MEDIA_RELATIVE_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 DATA_UPLOAD_MAX_NUMBER_FIELDS = 10000
+
+CRONJOBS = [
+    ('55 17 30 04 *', 'website.apps.blackjack.utils.launch')
+]
 
 # If settings_local.py is available, then local settings are used
 try:
