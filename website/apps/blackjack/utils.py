@@ -12,7 +12,7 @@ import django
 django.setup()
 
 from website.apps.blackjack.card_counter import high_low_count, true_count
-from website.apps.blackjack.models import ComparisonDecision
+from website.apps.blackjack.models import ComparisonDecision, HandDecisionEV
 
 basic_strategy = create_basic_strategy()
 basic_strategy_no_double = create_basic_strategy_no_double()
@@ -495,21 +495,16 @@ def create_new_comparison(hand, bank_card, decision1, decision2, number_of_decks
                                         theoritical_decision=theoritical_decision, exp_decision=exp_decision,
                                         number_of_decks=number_of_decks, number_of_simulations=number_of_simulations)
     db.connections.close_all()
-
-def initialize_comparisons():
-    number_of_decks = 6
-    number_of_simulations = 10000000
-    # create_new_comparison('22', '3', 'H', 'S', number_of_decks, number_of_simulations)
-    # create_new_comparison('22', '7', 'H', 'S', number_of_decks, number_of_simulations)
-    # create_new_comparison('22', '4', 'H', 'S', number_of_decks, number_of_simulations)
-    # create_new_comparison('22', '5', 'H', 'S', number_of_decks, number_of_simulations)
-    # create_new_comparison('22', '6', 'H', 'S', number_of_decks, number_of_simulations)
-    # create_new_comparison('22', '8', 'H', 'S', number_of_decks, number_of_simulations)
-    # create_new_comparison('22', '9', 'H', 'S', number_of_decks, number_of_simulations)
-    # create_new_comparison('22', 'T', 'H', 'S', number_of_decks, number_of_simulations)
-    # create_new_comparison('22', 'A', 'H', 'S', number_of_decks, number_of_simulations)
-    for card in DECK_VALUE:
-        Process(target=create_new_comparison, args=('88', card, 'H', 'S', number_of_decks, number_of_simulations)).start()
-        Process(target=create_new_comparison, args=('99', card, 'H', 'S', number_of_decks, number_of_simulations)).start()
-        # Process(target=create_new_comparison, args=('77', card, 'H', 'S', number_of_decks, number_of_simulations)).start()
-    return 0
+    
+def create_new_hand_decision_ev(hand, bank_card, decision, number_of_decks, number_of_simulations):
+    deck = {'2': 4*number_of_decks, '3': 4*number_of_decks, '4': 4*number_of_decks, '5': 4*number_of_decks, '6': 4*number_of_decks, '7': 4*number_of_decks, '8': 4*number_of_decks, '9': 4*number_of_decks, 'T': 16*number_of_decks, 'A': 4*number_of_decks}
+    ev = calc_ev_particular_hand_decision_changed(hand, bank_card, number_of_simulations, deck, decision=None)
+    key = hand_to_key(hand)
+    obj = HandDecisionEV.objects.filter(hand=hand, bank_card=bank_card, decision=decision, number_of_decks=number_of_decks, key=key).first()
+    if obj:
+        obj.ev = ev
+        obj.number_of_simulations = number_of_simulations
+        obj.save()
+    else:
+        HandDecisionEV.objects.create(hand=hand, bank_card=bank_card, decision=decision, number_of_decks=number_of_decks, key=key, number_of_simulations=number_of_simulations, ev=ev)
+    db.connections.close_all()

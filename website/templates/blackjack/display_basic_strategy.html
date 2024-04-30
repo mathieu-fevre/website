@@ -4,8 +4,15 @@
 {% load filters %}
 
 {% block title %}Basic Strategy{% endblock %}
+
+{% block nav %}
+
+{% include "blackjack/blackjack_nav.html" %}
+
+{% endblock nav %}
+
 {% block content %}
-<h3>1. Basic strategy</h3>
+<h3>Basic strategy</h3>
 <div class="row">
     <div class="column">
         <h4>Basic strategy</h4>
@@ -117,142 +124,6 @@
         </table>
     </div>
 </div>
-
-<h3>2. Results</h3>
-<p>Number of simulations : 10.000.000 <br>
-    Number of decks : 6
-</p>
-<table>
-    <thead>
-        <tr>
-            <th>Hand</th>
-            <th>Bank card</th>
-            <th>Decision 1</th>
-            <th>Decision 2</th>
-            <th>EV1</th>
-            <th>EV2</th>
-            <th>Experimental decision</th>
-            <th>Theoritical decision</th>
-            <th>Same decision</th>
-        </tr>
-    </thead>
-</table>
-
-
-
-print(compare('T2', '3', '-', 'H', 10000000, initial_deck2))
-(-25.44778, -23.13322)
-'temps total': 224
-<br><br>
-print(compare('T2', '4', '-', 'H', 10000000, initial_deck2))
-(-21.13734, -21.04396)
-'temps total': 217
-<br><br>
-print(compare('T2', '5', '-', 'H', 10000000, initial_deck2))
-(-16.35954, -18.86291)
-'temps total': 219
-<br><br>
-print(compare('T2', '6', '-', 'H', 10000000, initial_deck2))
-(-15.49702, -16.88194)
-'temps total': 191
-<br><br>
-print(compare('A7', '2', '-', 'D', 10000000, initial_deck2))
-(12.45472, 12.11238)
-'temps total': 212
-<br><br>
-print(compare('A4', '4', 'H', 'D', 10000000, initial_deck2))
-(5.96427, 6.34692)
-'temps total': 263
-<br><br>
-print(compare('A2', '5', 'H', 'D', 10000000, initial_deck2))
-(13.34882, 13.87706)
-'temps total': 250
-<br><br>
-print(compare('A2', '6', 'H', 'D', 10000000, initial_deck2))
-(15.99045, 18.7667)
-'temps total': 246
-<br><br>
-print(compare('54', '3', 'H', 'D', 10000000, initial_deck2))
-(10.70734, 13.27676)
-'temps total': 250
-<br><br>
-print(compare('44', '4', 'H', 'S', 10000000, initial_deck2))
-(4.68805, -1.85665)
-'temps total': 338
-<br><br>
-print(compare('44', '5', 'H', 'S', 10000000, initial_deck2))
-(8.07285, 8.22973)
-'temps total': 345
-<br><br>
-print(compare('44', '6', 'H', 'S', 10000000, initial_deck2))
-(12.25988, 13.93653)
-'temps total': 331
-<br><br>
-print(compare('33', '2', 'H', 'S', 10000000, initial_deck2))
-(-14.21406, -17.66871)
-'temps total': 352
-<br><br>
-print(compare('33', '3', 'H', 'S', 10000000, initial_deck2))
-(-10.82053, -8.72201)
-'temps total': 366
-<br><br>
-print(compare('T3', '2', 'H', '-', 10000000, initial_deck2))
-(-30.76101, -29.55882)
-'temps total': 228
-<br><br>
-print(compare('T6', 'T', 'H', '-', 10000000, initial_deck2))
-(-57.09678, -57.66748)
-'temps total': 161
-<br><br>
-#############
-<br><br>
-print(compare('A3', '4', 'H', 'D', 10000000, initial_deck2))
-(8.22492, 6.7479)
-'temps total': 258
-<br><br>
-print(compare('T7', 'A', 'H', '-', 10000000, initial_deck2))
-(-69.31837, -63.7216)
-'temps total': 157
-<br><br>
-print(compare('T6', 'A', 'H', '-', 10000000, initial_deck2))
-(-66.46375, -76.80762)
-'temps total': 163
-<br><br>
-print(compare('65', 'T', 'H', 'D', 10000000, initial_deck2))
-(3.12508, 1.00404)
-'temps total': 198
-<br><br>
-print(compare('A7', 'A', 'H', '-', 10000000, initial_deck2))
-(-38.68594, -37.99646)
-'temps total': 204
-<br><br>
-print(compare('63', '2', 'H', 'D', 10000000, initial_deck2))
-(7.67801, 7.01894)
-'temps total': 246
-<br><br>
-print(compare('66', '7', 'H', 'S', 10000000, initial_deck2))
-(-22.09187, -29.03631)
-'temps total': 345
-<br><br>
-print(compare('66', '2', 'H', 'S', 10000000, initial_deck2))
-(-25.36591, -20.6662)
-'temps total': 329
-<br><br>
-print(compare('22', '2', 'H', 'S', 10000000, initial_deck2))
-(-11.49275, -13.46946)
-'temps total': 387
-<br><br>
-print(compare('22', '3', 'H', 'S', 10000000, initial_deck2))
-(-8.13619, -6.00278)
-'temps total': 380
-<br><br>
-print(compare('22', '7', 'H', 'S', 10000000, initial_deck2))
-(-8.88471, -14.1122)
-'temps total': 416
-<br><br>
-print(compare('33', '7', 'H', 'S', 10000000, initial_deck2))
-(-15.36563, -16.51287)
-'temps total': 355
 
 {% endblock content %}
 

@@ -1,0 +1,188 @@
+{% extends "base.html" %}
+
+{% load static %}
+{% load filters %}
+
+{% block title %}Basic Strategy{% endblock %}
+
+{% block nav %}
+
+{% include "blackjack/blackjack_nav.html" %}
+
+{% endblock nav %}
+
+{% block content %}
+{% include "messages.html" %}
+<h3>1. calc new EV</h3>
+<form method="post">
+    {% csrf_token %}
+    <table class="table_list" width="300px">
+        <thead>
+            <tr>
+                <th>Hand</th>
+                <th>Bank card</th>
+                <th>Decision</th>
+                <th>Number of simulations</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>{{ form.hand }}</td>
+                <td>{{ form.bank_card }}</td>
+                <td>{{ form.decision }}</td>
+                <td>{{ form.number_of_simulations }}</td>
+            </tr>
+        </tbody>
+    </table>
+    <button type="submit" name="compute">Compute</button>
+</form>
+<br>
+<h3>2.Tables of EVs</h3>
+<div class="row">
+    <div class="column">
+        <h4>Ev of stand</h4>
+    </div>
+    <div class="column">
+        <h4>EV of hit</h4>
+    </div>
+<div class="row">
+    <div class="column">
+        <table class="BS" cellspacing="0" cellpadding="0" border="0">
+            <thead>
+                <tr>
+                    <th width="60px"></th>
+                    <th width="60px"></th>
+                    {% for card in deck_value %}
+                        <th width="60px">{{ card }}</th>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for key in keys_hit %}
+                    {% with key|hands_list_from_key:'-' as hands_list %}
+                    <tr>
+                        <th rowspan={{hands_list|length}}>{{ key }}</th>
+                        {% for hand in hands_list %}
+                            {% if not forloop.first %}<tr>{% endif %}
+                            <th>{{hand}}</th>
+                            {% for card in deck_value %}
+                                    <td width="60px">{{ hand|get_ev_stand:card }}</td>
+                            {% endfor %}
+                            {% if not forloop.first %}</tr>{% endif %}
+                        {% endfor %}
+                    </tr>
+                    {% endwith %}
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <div class="column">
+        <table class="BS" cellspacing="0" cellpadding="0" border="0">
+            <thead>
+                <tr>
+                    <th width="60px"></th>
+                    <th width="60px"></th>
+                    {% for card in deck_value %}
+                        <th width="60px">{{ card }}</th>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for key in keys_hit %}
+                    {% with key|hands_list_from_key:'H' as hands_list %}
+                    <tr>
+                        <th rowspan={{hands_list|length}}>{{ key }}</th>
+                        {% for hand in hands_list %}
+                            {% if not forloop.first %}<tr>{% endif %}
+                            <th>{{hand}}</th>
+                            {% for card in deck_value %}
+                                    <td width="60px">{{ hand|get_ev_hit:card }}</td>
+                            {% endfor %}
+                            {% if not forloop.first %}</tr>{% endif %}
+                        {% endfor %}
+                    </tr>
+                    {% endwith %}
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="row">
+    <div class="column">
+        <h4>Ev of double</h4>
+    </div>
+    <div class="column">
+        <h4>Ev of split</h4>
+    </div>
+<div class="row">
+    <div class="column">
+        <table class="BS" cellspacing="0" cellpadding="0" border="0">
+            <thead>
+                <tr>
+                    <th width="60px"></th>
+                    <th width="60px"></th>
+                    {% for card in deck_value %}
+                        <th width="60px">{{ card }}</th>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for key in keys_hit %}
+                    {% with key|hands_list_from_key:'D' as hands_list %}
+                    <tr>
+                        <th rowspan={{hands_list|length}}>{{ key }}</th>
+                        {% for hand in hands_list %}
+                            {% if not forloop.first %}<tr>{% endif %}
+                            <th>{{hand}}</th>
+                            {% for card in deck_value %}
+                                    <td width="60px">{{ hand|get_ev_double:card }}</td>
+                            {% endfor %}
+                            {% if not forloop.first %}</tr>{% endif %}
+                        {% endfor %}
+                    </tr>
+                    {% endwith %}
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <div class="column">
+        <table class="BS" cellspacing="0" cellpadding="0" border="0">
+            <thead>
+                <tr>
+                    <th width="60px"></th>
+                    <th width="60px"></th>
+                    {% for card in deck_value %}
+                        <th width="60px">{{ card }}</th>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for key in keys_hit %}
+                    {% with key|hands_list_from_key:'S' as hands_list %}
+                    <tr>
+                        <th rowspan={{hands_list|length}}>{{ key }}</th>
+                        {% for hand in hands_list %}
+                            {% if not forloop.first %}<tr>{% endif %}
+                            <th>{{hand}}</th>
+                            {% for card in deck_value %}
+                                    <td width="60px">{{ hand|get_ev_split:card }}</td>
+                            {% endfor %}
+                            {% if not forloop.first %}</tr>{% endif %}
+                        {% endfor %}
+                    </tr>
+                    {% endwith %}
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+
+</script>
+{% endblock content %}
+
+{% block style %}
+
+{% endblock style %}

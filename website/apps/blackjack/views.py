@@ -2,14 +2,13 @@ from django.forms import modelformset_factory
 from django.shortcuts import render, redirect
 
 from website.apps.blackjack.basic_strategy import DECK_VALUE, create_basic_strategy, create_basic_strategy_no_double, create_basic_strategy_no_double_no_split, create_basic_strategy_no_split
-from website.apps.blackjack.forms import ComparisonDecisionAddForm, ComparisonDecisionForm
-from website.apps.blackjack.models import ComparisonDecision
+from website.apps.blackjack.forms import ComparisonDecisionAddForm, ComparisonDecisionForm, HandDecisionEVForm
+from website.apps.blackjack.models import ComparisonDecision, HandDecisionEV
 from django.contrib import messages
 from multiprocessing import Process
 from django import db
 
-from website.apps.blackjack.utils import create_new_comparison
-
+from website.apps.blackjack.utils import create_new_comparison, create_new_hand_decision_ev
 
 def display_basic_strategy(request):
     basic_strategy = create_basic_strategy()
@@ -110,6 +109,55 @@ def display_basic_strategy(request):
         'dec_list_no_double_no_split': dec_list_no_double_no_split,
     }
     return render(request, 'blackjack/display_basic_strategy.html', contexts)
+
+def display_hand_decision_ev(request):
+    keys_stand = []
+    keys_hit = []
+    keys_double = []
+    keys_split = []
+    for total in range(21, 4, -1):
+        keys_stand.append('hard '+str(total))
+        keys_hit.append('hard '+str(total))
+        keys_double.append('hard '+str(total))
+    for total in range(21, 12, -1):
+        keys_stand.append('soft '+ str(total))
+        keys_hit.append('soft '+ str(total))
+        keys_double.append('soft '+ str(total))
+    for card in reversed(DECK_VALUE):
+        keys_stand.append('pair '+ card)
+        keys_hit.append('pair '+ card)
+        keys_double.append('pair '+ card)
+        keys_split.append('pair '+ card)
+    form = HandDecisionEVForm()
+    if request.POST:
+        if 'compute' in request.POST:
+            form = HandDecisionEVForm(request.POST)
+            if form.is_valid():
+                db.connections.close_all()
+                hand = form.cleaned_data['hand']
+                bank_card = form.cleaned_data['bank_card']
+                decision = form.cleaned_data['decision']
+                number_of_decks = 6
+                number_of_simulations = form.cleaned_data['number_of_simulations']
+                obj = HandDecisionEV.objects.filter(hand=hand, decision=decision, bank_card=bank_card, number_of_decks=number_of_decks, number_of_simulations__gte=number_of_simulations)
+                if obj.exists():
+                    messages.add_message(request, messages.ERROR, 'This simulation already exists with of number of simulations of ' + str(obj.first().number_of_simulations) +'.')
+                else:
+                    p = Process(target=create_new_hand_decision_ev, args=(hand, bank_card, decision, number_of_decks, number_of_simulations))
+                    p.start()
+                    messages.add_message(request, messages.SUCCESS, 'Simulations started')
+                    return redirect(request.get_full_path())
+            else:
+                messages.add_message(request, messages.ERROR, 'Error in the form')
+    contexts = {
+        'form': form,
+        'keys_stand': keys_stand,
+        'keys_hit': keys_hit,
+        'keys_split': keys_split,
+        'keys_double': keys_double,
+        'deck_value': DECK_VALUE,
+    }
+    return render(request, 'blackjack/display_hand_decision_ev.html', contexts)
 
 def compare_results(request):
     comp_dec = ComparisonDecision.objects.all()

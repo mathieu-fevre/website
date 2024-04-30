@@ -18,3 +18,19 @@ class ComparisonDecision(models.Model):
 
     def __str__(self):
         return self.hand + ' VS ' + self.bank_card
+    
+
+class HandDecisionEV(models.Model):
+    hand = models.CharField(max_length=255)
+    key = models.CharField(max_length=255)
+    bank_card = models.CharField(max_length=255)
+    decision = models.CharField(max_length=255)
+    ev = models.FloatField()
+    number_of_decks = models.IntegerField(default=6)
+    number_of_simulations = models.BigIntegerField(default=10000000)
+    
+    class Meta:
+        db_table = 'blackjack_hand_decision_ev'
+
+    def __str__(self):
+        return self.hand + ' VS ' + self.bank_card
