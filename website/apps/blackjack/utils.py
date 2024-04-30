@@ -508,3 +508,12 @@ def create_new_hand_decision_ev(hand, bank_card, decision, number_of_decks, numb
     else:
         HandDecisionEV.objects.create(hand=hand, bank_card=bank_card, decision=decision, number_of_decks=number_of_decks, key=key, number_of_simulations=number_of_simulations, ev=ev)
     db.connections.close_all()
+
+def launch():
+    number_of_simulations = 10000000
+    number_of_decks = 6
+    decision = '-'
+    hands_list = ['T56', 'TT', 'T54', 'T62', 'T43', '97', '69', 'T4', '76', 'T2', '82', '342', '62', '43', '42', '32']
+    for hand in hands_list:
+        for card in DECK_VALUE:
+            create_new_hand_decision_ev(hand, card, decision, number_of_decks, number_of_simulations)
