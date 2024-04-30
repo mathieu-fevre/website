@@ -514,7 +514,7 @@ def launch():
     number_of_simulations = 10000000
     number_of_decks = 6
     decision = '-'
-    hands_list = ['T2', '82', '342', '62', '43', '42', '32']
+    hands_list = ['342', '62', '43', '42', '32', '83']
     for hand in hands_list:
         for card in DECK_VALUE:
             create_new_hand_decision_ev(hand, card, decision, number_of_decks, number_of_simulations)
