@@ -153,7 +153,7 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 DATA_UPLOAD_MAX_NUMBER_FIELDS = 10000
 
 CRONJOBS = [
-    ('47 10 * * *', 'website.apps.blackjack.utils.launch')
+    ('47 10 * * *', 'website.apps.blackjack.utils.launch', '>> /var/log/django_cron_log.log')
 ]
 
 # If settings_local.py is available, then local settings are used
