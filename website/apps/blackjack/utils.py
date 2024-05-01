@@ -191,6 +191,7 @@ def get_gain_from_one_hand(deck):
             gain_total +=  3/2
     else:                                               ##
         hand1, hand2, hand3, deck, bet1, bet2, bet3 = player_plays_one_hand(hand, bank_hand, deck)
+        # print('h1 '+hand1, 'h2' + hand2, 'h3 '+ hand3, 'deck:', deck)
         bank_hand, deck = bank_score(bank_hand, deck)
         if bank_hand == 'AT' or bank_hand == 'TA':
             gain_total -= bet1
@@ -240,14 +241,15 @@ def player_plays_one_hand_with_bet(bet, deck):
                 gain += bet3 * who_wins(hand3, bank_hand) *bet
     return gain, deck
 
-def player_plays2(hands_number, deck, bet):
-    gain = 0
+def player_plays_with_bet(hands_number, deck, bet):
+    gain_total = 0
     for _ in range(1, hands_number+1):
-        gain += player_plays_one_hand_with_bet(bet, deck)
-    return gain
+        gain, deck = player_plays_one_hand_with_bet(bet, deck)
+        gain_total += gain
+    return gain_total
 
-def calc_ev2(hands_number, deck):
-    return 100 * float(player_plays2(hands_number, deck, 1))/hands_number
+def calc_ev_with_bet(hands_number, deck):
+    return 100 * float(player_plays_with_bet(hands_number, deck, 1))/hands_number
 
 def get_trajectory_list(bankroll, hands_number, deck):
     bankroll_list = [bankroll]
