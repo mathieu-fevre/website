@@ -143,9 +143,10 @@ def display_hand_decision_ev(request):
                 if obj.exists():
                     messages.add_message(request, messages.ERROR, 'This simulation already exists with of number of simulations of ' + str(obj.first().number_of_simulations) +'.')
                 else:
-                    p = Process(target=create_new_hand_decision_ev, args=(hand, bank_card, decision, number_of_decks, number_of_simulations))
-                    p.start()
-                    messages.add_message(request, messages.SUCCESS, 'Simulations started')
+                    # p = Process(target=create_new_hand_decision_ev, args=(hand, bank_card, decision, number_of_decks, number_of_simulations))
+                    # p.start()
+                    # messages.add_message(request, messages.SUCCESS, 'Simulations started')
+                    messages.add_message(request, messages.SUCCESS, 'service In construction')
                     return redirect(request.get_full_path())
             else:
                 messages.add_message(request, messages.ERROR, 'Error in the form')

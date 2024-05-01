@@ -498,7 +498,7 @@ def create_new_comparison(hand, bank_card, decision1, decision2, number_of_decks
     
 def create_new_hand_decision_ev(hand, bank_card, decision, number_of_decks, number_of_simulations):
     deck = {'2': 4*number_of_decks, '3': 4*number_of_decks, '4': 4*number_of_decks, '5': 4*number_of_decks, '6': 4*number_of_decks, '7': 4*number_of_decks, '8': 4*number_of_decks, '9': 4*number_of_decks, 'T': 16*number_of_decks, 'A': 4*number_of_decks}
-    ev = calc_ev_particular_hand_decision_changed(hand, bank_card, number_of_simulations, deck, decision=None)
+    ev = calc_ev_particular_hand_decision_changed(hand, bank_card, number_of_simulations, deck, decision=decision)
     key = hand_to_key(hand)
     obj = HandDecisionEV.objects.filter(hand=hand, bank_card=bank_card, decision=decision, number_of_decks=number_of_decks, key=key).first()
     if obj:
@@ -514,7 +514,7 @@ def launch():
     number_of_simulations = 10000000
     number_of_decks = 6
     decision = '-'
-    hands_list = ['342', '62', '43', '42', '32', '83']
+    hands_list = ['T74', 'T64', '982', 'T8', '98', 'T6', '87', '68', 'T3', '84', '83', '64', '342', '62', '43', '42', '32']
     for hand in hands_list:
         for card in DECK_VALUE:
             create_new_hand_decision_ev(hand, card, decision, number_of_decks, number_of_simulations)
