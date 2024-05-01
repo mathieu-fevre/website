@@ -11,7 +11,7 @@ from multiprocessing import Process
 import django
 django.setup()
 
-from website.apps.blackjack.card_counter import high_low_count, true_count
+from website.apps.blackjack.card_counter import calc_true_count, create_deviation_index_dict, high_low_count, high_low_hand
 from website.apps.blackjack.models import ComparisonDecision, HandDecisionEV
 
 basic_strategy = create_basic_strategy()
@@ -21,6 +21,7 @@ basic_strategy_no_double_no_split = create_basic_strategy_no_double_no_split()
 number_of_decks = 6
 initial_deck = {'2': 4*number_of_decks, '3': 4*number_of_decks, '4': 4*number_of_decks, '5': 4*number_of_decks, '6': 4*number_of_decks, '7': 4*number_of_decks, '8': 4*number_of_decks, '9': 4*number_of_decks, 'T': 16*number_of_decks, 'A': 4*number_of_decks}
 initial_deck2 = {'2': 4*number_of_decks, '3': 4*number_of_decks, '4': 4*number_of_decks, '5': 4*number_of_decks, '6': 4*number_of_decks, '7': 4*number_of_decks, '8': 4*number_of_decks, '9': 4*number_of_decks, 'T': 16*number_of_decks, 'A': 4*number_of_decks}
+index_dict = create_deviation_index_dict()
 cut_decks = 4.5
 
 def reset_all():
@@ -157,6 +158,56 @@ def player_single_action(hand1, hand2, hand3, bank_hand, deck):
             hand3 += card
             return hand1, hand2, hand3, deck, decision, 1
 
+def player_single_action_with_count(hand1, hand2, hand3, bank_hand, deck, count):
+    player_key = hand_to_key(hand1)
+    long_key = player_key + ',' + bank_hand
+    if long_key in index_dict.keys():
+        arr = index_dict[long_key].split(',')
+        true_count = calc_true_count(count, deck)
+        if (int(arr[0])<0 and true_count<int(arr[0])) or (int(arr[0])>=0 and true_count>int(arr[0])) and (arr[1] == '-' or arr[1] == 'H' or (arr[1] == 'D' and len(hand1)==2) or (arr[1] == 'S' and (not hand2 or not hand3))):
+            decision = arr[1]
+            # print(deck, 'sum_deck: '+str(sum(deck.values())), 'count: ' +str(count), 'truecount: '+str(true_count), 'hand1: '+ hand1, 'hand2: '+ hand2,  'hand3: '+ hand3, 'bank_hand: '+bank_hand, 'decision: '+ decision )
+        else:
+            if hand3 and hand2:
+                if len(hand1)>=3:
+                    decision = basic_strategy_no_double_no_split[long_key]
+                else:
+                    decision = basic_strategy_no_split[long_key]
+            else:
+                if len(hand1)>=3:
+                    decision = basic_strategy_no_double[long_key]
+                else:
+                    decision = basic_strategy[long_key]
+        if decision == '-':
+            return hand1, hand2, hand3, deck, decision, 1
+        if decision == 'D':
+            card, deck = draw_card(deck)
+            hand1 += card
+            return hand1, hand2, hand3, deck, decision, 2 
+        if decision == 'H':
+            card, deck = draw_card(deck)
+            hand1 += card
+            return hand1, hand2, hand3, deck, decision, 1
+        if decision == 'S':
+            hand1 = hand1[0]
+            card, deck = draw_card(deck)
+            hand1 += card
+            if hand2 == '':
+                hand2 = hand1[0]
+                card, deck = draw_card(deck)
+                hand2 += card
+                return hand1, hand2, hand3, deck, decision, 1
+            else:
+                hand1 = hand1[0]
+                card, deck = draw_card(deck)
+                hand1 += card
+                hand3 = hand1[0]
+                card, deck = draw_card(deck)
+                hand3 += card
+                return hand1, hand2, hand3, deck, decision, 1
+    else:
+        return player_single_action(hand1, hand2, hand3, bank_hand, deck)
+
 # les mains sont pas forcément dans l'ordre de départ
 def player_actions(hand1, hand2, hand3, bank_hand, deck, decision=None, bet1=None, bet2=None, bet3=None):
     # print('1: '+hand1, '2: '+hand2, '3: '+hand3, 'bank: '+bank_hand, deck, decision, bet1, bet2, bet3)
@@ -170,17 +221,44 @@ def player_actions(hand1, hand2, hand3, bank_hand, deck, decision=None, bet1=Non
         return player_actions(hand1, hand2, hand3, bank_hand, deck, decision, bet1, bet2, bet3)
     return player_actions(hand2, hand3, hand1, bank_hand, deck, decision, bet2, bet3, bet1)
     
+def player_actions_with_count(hand1, hand2, hand3, bank_hand, deck, count, decision=None, bet1=None, bet2=None, bet3=None):
+    # print('1: '+hand1, '2: '+hand2, '3: '+hand3, 'bank: '+bank_hand, deck, decision, bet1, bet2, bet3)
+    if decision == '-' or decision == 'D':
+        if bet1:
+            return hand1, hand2, hand3, deck, bet1, bet2, bet3
+    hand1, hand2, hand3, deck, decision, bet1 = player_single_action_with_count(hand1, hand2, hand3, bank_hand, deck, count)
+    if not hand2 or bet2 or decision == 'S' or decision == 'H':
+        if hand2 and hand1[0]=='A' and hand2[0]=='A':
+            return hand1, hand2, hand3, deck, 1, 1, bet3 # Quand on split des As, une carte par as, pas de blackjack et pas de 3ieme jeu.
+        return player_actions_with_count(hand1, hand2, hand3, bank_hand, deck, count, decision, bet1, bet2, bet3)
+    return player_actions_with_count(hand2, hand3, hand1, bank_hand, deck, count, decision, bet2, bet3, bet1)
+
 def player_plays_one_hand(hand, bank_hand, deck):
     return player_actions(hand, '', '', bank_hand, deck)
+
+def player_plays_one_hand_with_count(hand, bank_hand, deck, count):
+    return player_actions_with_count(hand, '', '', bank_hand, deck, count)
 
 def initialize_hand(deck):
     if sum(deck.values()) <= float(sum(initial_deck.values()))*(1-cut_decks/number_of_decks):
         deck = {'2': 4*number_of_decks, '3': 4*number_of_decks, '4': 4*number_of_decks, '5': 4*number_of_decks, '6': 4*number_of_decks, '7': 4*number_of_decks, '8': 4*number_of_decks, '9': 4*number_of_decks, 'T': 16*number_of_decks, 'A': 4*number_of_decks}
+        # print('\n\n\n deck reset')
     hand, deck = draw_card(deck)
     bank_hand, deck = draw_card(deck)
     card, deck= draw_card(deck)
     hand += card
     return hand, bank_hand, deck
+
+def initialize_hand_with_count(deck, count):
+    if sum(deck.values()) <= float(sum(initial_deck.values()))*(1-cut_decks/number_of_decks):
+        deck = {'2': 4*number_of_decks, '3': 4*number_of_decks, '4': 4*number_of_decks, '5': 4*number_of_decks, '6': 4*number_of_decks, '7': 4*number_of_decks, '8': 4*number_of_decks, '9': 4*number_of_decks, 'T': 16*number_of_decks, 'A': 4*number_of_decks}
+        # print('\n\n\n deck reset')
+        count = 0
+    hand, deck = draw_card(deck)
+    bank_hand, deck = draw_card(deck)
+    card, deck= draw_card(deck)
+    hand += card
+    return hand, bank_hand, deck, count
 
 def get_gain_from_one_hand(deck):
     gain_total = 0
@@ -232,14 +310,48 @@ def player_plays_one_hand_with_bet(bet, deck):
             if hand2:
                 gain -= bet2 * bet
             if hand3:
-                gain -= bet3 *bet
+                gain -= bet3 * bet
         else:    
             gain += bet1 * who_wins(hand1, bank_hand) *bet
             if hand2:
                 gain += bet2 * who_wins(hand2, bank_hand) *bet
             if hand3:
                 gain += bet3 * who_wins(hand3, bank_hand) *bet
+        # print('hand1: '+hand1, 'hand2: '+hand2, 'hand3: '+ hand3, 'bank_hand:' + bank_hand, 'bet1: '+str(bet1), 'bet2: '+str(bet2), 'bet3: '+str(bet3), 'gain: '+ str(gain), 'deck', deck)
     return gain, deck
+
+def player_plays_one_hand_with_bet_and_count(bet, deck, count):
+    # print('début', count, deck)
+    gain = 0
+    hand, bank_hand, deck, count = initialize_hand_with_count(deck, count)
+    if hand == 'AT' or hand == 'TA':
+        bank_hand, deck = bank_score(bank_hand, deck)
+        if bank_hand != 'AT' and bank_hand != 'TA':      ##                             
+            gain +=  3/2 *bet
+        count -=2
+        count += high_low_hand(bank_hand)
+        # print('BJ chez nous', bank_hand)
+    else:                                               ##
+        hand1, hand2, hand3, deck, bet1, bet2, bet3 = player_plays_one_hand_with_count(hand, bank_hand, deck, count)
+        bank_hand, deck = bank_score(bank_hand, deck)
+        if bank_hand == 'AT' or bank_hand == 'TA':
+            gain -= bet1 * bet
+            if hand2:
+                gain -= bet2 * bet
+            if hand3:
+                gain -= bet3 * bet
+        else:    
+            gain += bet1 * who_wins(hand1, bank_hand) *bet
+            if hand2:
+                gain += bet2 * who_wins(hand2, bank_hand) *bet
+            if hand3:
+                gain += bet3 * who_wins(hand3, bank_hand) *bet
+        # print('hand1: '+hand1, 'hand2: '+hand2, 'hand3: '+ hand3, 'bank_hand:' + bank_hand, 'bet1: '+str(bet1), 'bet2: '+str(bet2), 'bet3: '+str(bet3), 'gain: '+ str(gain), 'deck', deck)
+        count += high_low_hand(hand1)
+        count += high_low_hand(hand2)
+        count += high_low_hand(hand3)
+        count += high_low_hand(bank_hand)
+    return gain, deck, count
 
 def player_plays_with_bet(hands_number, deck, bet):
     gain_total = 0
@@ -250,6 +362,23 @@ def player_plays_with_bet(hands_number, deck, bet):
 
 def calc_ev_with_bet(hands_number, deck):
     return 100 * float(player_plays_with_bet(hands_number, deck, 1))/hands_number
+
+def player_plays_with_bet_and_count(hands_number, deck, bet_range):
+    arr=[0,0]
+    gain_total = 0
+    running_count = 0
+    bet = bet_range[0]
+    for _ in range(1, hands_number+1):
+        if calc_true_count(running_count, deck) <=2:
+            bet = bet_range[0]
+            arr[0] += 1
+        else:
+            bet = bet_range[-1]
+            arr[1] += 1
+        gain, deck, running_count = player_plays_one_hand_with_bet_and_count(bet, deck, running_count)
+        gain_total += gain
+    ev = gain_total/hands_number
+    return gain_total, arr, ev
 
 def get_trajectory_list(bankroll, hands_number, deck):
     bankroll_list = [bankroll]
@@ -391,7 +520,7 @@ def count_frequency(deck, min_count, max_count, number_of_simulations):
         card2, deck = draw_card(deck)
         card3, deck = draw_card(deck)
         count += high_low_count(bank_hand) + high_low_count(card1) + high_low_count(card2) + high_low_count(card3)
-        true_count_var = true_count(count, deck)
+        true_count_var = calc_true_count(count, deck)
         if true_count_var >= max_count:
             count_dict[str(max_count)] += 1
         elif true_count_var <= min_count:

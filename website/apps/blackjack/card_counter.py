@@ -91,5 +91,11 @@ def high_low_count(card):
         return 0
     return 1
 
-def true_count(count, deck):
+def high_low_hand(hand):
+    count = 0
+    for card in hand:
+        count += high_low_count(card)
+    return count
+
+def calc_true_count(count, deck):
     return int(round(52*float(count)/sum(deck.values()), 0))

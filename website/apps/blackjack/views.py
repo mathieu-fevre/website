@@ -8,7 +8,7 @@ from django.contrib import messages
 from multiprocessing import Process
 from django import db
 
-from website.apps.blackjack.utils import create_new_comparison, create_new_hand_decision_ev
+from website.apps.blackjack.utils import create_new_comparison, create_new_hand_decision_ev, player_plays_particular_hand, player_plays_with_bet, player_plays_with_bet_and_count
 
 def display_basic_strategy(request):
     basic_strategy = create_basic_strategy()
