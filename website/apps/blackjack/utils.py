@@ -641,10 +641,10 @@ def create_new_hand_decision_ev(hand, bank_card, decision, number_of_decks, numb
     db.connections.close_all()
 
 def launch():
-    create_new_hand_decision_ev('65', '5', 'D', 6, 1000)
+    # create_new_hand_decision_ev('65', '5', 'D', 6, 1000)
     number_of_simulations = 10000000
     number_of_decks = 6
-    decision = '-'
+    decision = 'H'
     hands_list = ['T74', 'T64', '982', 'T8', '98', 'T6', '87', '68', 'T3', '84', '83', '64', '342', '62', '43', '42', '32']
     for hand in hands_list:
         for card in DECK_VALUE:
