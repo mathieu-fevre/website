@@ -364,21 +364,66 @@ def calc_ev_with_bet(hands_number, deck):
     return 100 * float(player_plays_with_bet(hands_number, deck, 1))/hands_number
 
 def player_plays_with_bet_and_count(hands_number, deck, bet_range):
-    arr=[0,0]
+    arr=[0] * len(bet_range)
     gain_total = 0
     running_count = 0
     bet = bet_range[0]
     for _ in range(1, hands_number+1):
-        if calc_true_count(running_count, deck) <=2:
+        true_count = calc_true_count(running_count, deck)
+        if true_count <=0:
             bet = bet_range[0]
-            arr[0] += 1
+            arr[0] +=1
+        elif true_count == 1:
+            bet = bet_range[1]
+            arr[1] +=1
+        elif true_count == 2:
+            bet = bet_range[2]
+            arr[2] +=1
+        elif true_count == 3:
+            bet = bet_range[3]
+            arr[3] +=1
         else:
             bet = bet_range[-1]
-            arr[1] += 1
+            arr[-1] +=1
         gain, deck, running_count = player_plays_one_hand_with_bet_and_count(bet, deck, running_count)
         gain_total += gain
-    ev = gain_total/hands_number
-    return gain_total, arr, ev
+    ev_per_hand = gain_total/hands_number
+    total_bet = 0
+    for i in range(0, len(arr)):
+        total_bet += bet_range[i] * arr[i]
+    ev = gain_total/total_bet
+    return gain_total, arr, ev_per_hand, ev
+
+def minimum_br_with_bet_with_count(number_of_sim, hands_number, deck, bet_range):
+    t=time.time()
+    minima = []
+    gain_totaux = []
+    for sim_numb in range(1, number_of_sim+1):
+        mini = 0
+        gain_total = 0
+        running_count = 0
+        bet = bet_range[0]
+        for _ in range(1, hands_number+1):
+            true_count = calc_true_count(running_count, deck)
+            if true_count <=0:
+                bet = bet_range[0]
+            elif true_count == 1:
+                bet = bet_range[1]
+            elif true_count == 2:
+                bet = bet_range[2]
+            elif true_count == 3:
+                bet = bet_range[3]
+            else:
+                bet = bet_range[-1]
+            gain, deck, running_count = player_plays_one_hand_with_bet_and_count(bet, deck, running_count)
+            gain_total += gain
+            if gain_total < mini:
+                mini = gain_total
+        gain_totaux.append(gain_total)
+        minima.append(mini)
+    t2=time.time()
+    print(t2-t)
+    return minima, gain_totaux
 
 def get_trajectory_list(bankroll, hands_number, deck):
     bankroll_list = [bankroll]
@@ -537,6 +582,9 @@ def count_frequency(deck, min_count, max_count, number_of_simulations):
     plt.show()
     return percentage_dict
 
+# >>> count_frequency(initial_deck2, -4, 4, 10000000)
+# {'-4': 5.16584, '-3': 3.91784, '-2': 6.86256, '-1': 12.29952, '0': 43.56428, '1': 12.29752, '2': 6.85782, '3': 3.91548, '4': 5.11914}
+
 def player_plays_particular_hand(hand, bank_hand, hands_number, deck):
     gain = 0
     for _ in range(1, hands_number+1):
@@ -546,9 +594,9 @@ def player_plays_particular_hand(hand, bank_hand, hands_number, deck):
         deck[bank_hand] = deck[bank_hand]-1
         if hand == 'AT' or hand == 'TA':
             bank_hand2, deck = bank_score(bank_hand, deck)
-            if bank_hand2 != 'AT' and bank_hand2 != 'TA':      ##                             
+            if bank_hand2 != 'AT' and bank_hand2 != 'TA':                  
                 gain +=  3/2
-        else:                                               ##
+        else:
             hand1, hand2, hand3, deck, bet1, bet2, bet3 = player_plays_one_hand(hand, bank_hand, deck)
             bank_hand2, deck = bank_score(bank_hand, deck)
             if bank_hand2 == 'AT' or bank_hand2 == 'TA':

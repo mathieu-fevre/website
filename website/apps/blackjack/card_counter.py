@@ -1,3 +1,5 @@
+import math
+
 def create_deviation_index_dict():
     #min -4, max 8
     index_dict = {
@@ -98,4 +100,4 @@ def high_low_hand(hand):
     return count
 
 def calc_true_count(count, deck):
-    return int(round(52*float(count)/sum(deck.values()), 0))
+    return int(52*float(count)/sum(deck.values()))
