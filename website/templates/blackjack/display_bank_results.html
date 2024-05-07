@@ -34,13 +34,13 @@
             {% for obj in objs %}
             <tr>
                 <th>{{ obj.bank_card }}</th>
-                <td>{{ obj.prob17 }}%</td>
-                <td>{{ obj.prob18 }}%</td>
-                <td>{{ obj.prob19 }}%</td>
-                <td>{{ obj.prob20 }}%</td>
-                <td>{{ obj.prob21 }}%</td>
-                <td>{{ obj.prob_bj }}%</td>
-                <td>{{ obj.prob_bust }}%</td>
+                <td>{{ obj.prob17|floatformat:2 }}%</td>
+                <td>{{ obj.prob18|floatformat:2 }}%</td>
+                <td>{{ obj.prob19|floatformat:2 }}%</td>
+                <td>{{ obj.prob20|floatformat:2 }}%</td>
+                <td>{{ obj.prob21|floatformat:2 }}%</td>
+                <td>{{ obj.prob_bj|floatformat:2 }}%</td>
+                <td>{{ obj.prob_bust|floatformat:2 }}%</td>
             </tr>
             {% endfor %}
         </tbody>
@@ -64,13 +64,13 @@
         </thead>
         <tbody>
             <tr>
-                <td>{{ overall_results.prob17 }}%</td>
-                <td>{{ overall_results.prob18 }}%</td>
-                <td>{{ overall_results.prob19 }}%</td>
-                <td>{{ overall_results.prob20 }}%</td>
-                <td>{{ overall_results.prob21 }}%</td>
-                <td>{{ overall_results.prob_bj }}%</td>
-                <td>{{ overall_results.prob_bust }}%</td>
+                <td>{{ overall_results.prob17|floatformat:2 }}%</td>
+                <td>{{ overall_results.prob18|floatformat:2 }}%</td>
+                <td>{{ overall_results.prob19|floatformat:2 }}%</td>
+                <td>{{ overall_results.prob20|floatformat:2 }}%</td>
+                <td>{{ overall_results.prob21|floatformat:2 }}%</td>
+                <td>{{ overall_results.prob_bj|floatformat:2 }}%</td>
+                <td>{{ overall_results.prob_bust|floatformat:2 }}%</td>
             </tr>
         </tbody>
     </table>

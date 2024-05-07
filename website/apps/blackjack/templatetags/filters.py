@@ -39,11 +39,11 @@ def get_ev_double(hand, card):
     obj = HandDecisionEV.objects.filter(hand=hand, number_of_decks=6, bank_card=card, decision='D')
     if not obj:
         return '-'
-    return str(round(obj.first().ev,2)) + '%'
+    return str(round(obj.first().ev, 2)) + '%'
 
 @register.filter(name='get_ev_split')
 def get_ev_split(hand, card):
     obj = HandDecisionEV.objects.filter(hand=hand, number_of_decks=6, bank_card=card, decision='S')
     if not obj:
         return '-'
-    return str(round(obj.first().ev,2)) + '%'
+    return str(round(obj.first().ev, 2)) + '%'
