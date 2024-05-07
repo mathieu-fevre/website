@@ -3,12 +3,13 @@ from django.shortcuts import render, redirect
 
 from website.apps.blackjack.basic_strategy import DECK_VALUE, create_basic_strategy, create_basic_strategy_no_double, create_basic_strategy_no_double_no_split, create_basic_strategy_no_split
 from website.apps.blackjack.forms import ComparisonDecisionAddForm, ComparisonDecisionForm, HandDecisionEVForm
-from website.apps.blackjack.models import ComparisonDecision, HandDecisionEV
+from website.apps.blackjack.models import ComparisonDecision, HandDecisionEV, ProbBankResults
 from django.contrib import messages
 from multiprocessing import Process
 from django import db
+from django.db.models import F
 
-from website.apps.blackjack.utils import create_new_comparison, create_new_hand_decision_ev, player_plays_particular_hand, player_plays_with_bet, player_plays_with_bet_and_count
+from website.apps.blackjack.utils import create_new_comparison, create_new_hand_decision_ev, player_plays_particular_hand, player_plays_with_bet, player_plays_with_bet_and_count, value_hand
 
 def display_basic_strategy(request):
     basic_strategy = create_basic_strategy()
@@ -203,3 +204,11 @@ def compare_add(request):
     }
     return render(request, 'blackjack/compare_add.html', contexts)
     
+def display_bank_results(request):
+    overall_results = ProbBankResults.objects.filter(bank_card__isnull=True).first()
+    objs = sorted(ProbBankResults.objects.filter(bank_card__isnull=False), key=lambda x:value_hand(x.bank_card))
+    contexts = {
+        'objs': objs,
+        'overall_results': overall_results
+    }
+    return render(request, 'blackjack/display_bank_results.html', contexts)

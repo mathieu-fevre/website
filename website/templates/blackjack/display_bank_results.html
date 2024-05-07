@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+
+{% load static %}
+{% load filters %}
+
+{% block title %}Bank results{% endblock %}
+
+{% block nav %}
+
+{% include "blackjack/blackjack_nav.html" %}
+
+{% endblock nav %}
+
+{% block content %}
+{% include "messages.html" %}
+<h3>1. Bank results by card</h3>
+    <p>Number of simulations: 100,000,000<br>
+        Number of Decks: 6
+    </p>
+    <table class="table_list" width="300px">
+        <thead>
+            <tr>
+                <th></th>
+                <th>17</th>
+                <th>18</th>
+                <th>19</th>
+                <th>20</th>
+                <th>21</th>
+                <th>BJ</th>
+                <th>Bust</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for obj in objs %}
+            <tr>
+                <th>{{ obj.bank_card }}</th>
+                <td>{{ obj.prob17 }}%</td>
+                <td>{{ obj.prob18 }}%</td>
+                <td>{{ obj.prob19 }}%</td>
+                <td>{{ obj.prob20 }}%</td>
+                <td>{{ obj.prob21 }}%</td>
+                <td>{{ obj.prob_bj }}%</td>
+                <td>{{ obj.prob_bust }}%</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <h3>2. Bank results overall</h3>
+    <p>Number of simulations: 100,000,000<br>
+        Number of Decks: 6
+    </p>
+    <table class="table_list" width="300px">
+        <thead>
+            <tr>
+                <th>17</th>
+                <th>18</th>
+                <th>19</th>
+                <th>20</th>
+                <th>21</th>
+                <th>BJ</th>
+                <th>Bust</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>{{ overall_results.prob17 }}%</td>
+                <td>{{ overall_results.prob18 }}%</td>
+                <td>{{ overall_results.prob19 }}%</td>
+                <td>{{ overall_results.prob20 }}%</td>
+                <td>{{ overall_results.prob21 }}%</td>
+                <td>{{ overall_results.prob_bj }}%</td>
+                <td>{{ overall_results.prob_bust }}%</td>
+            </tr>
+        </tbody>
+    </table>
+<script>
+
+</script>
+{% endblock content %}
+
+{% block style %}
+
+{% endblock style %}

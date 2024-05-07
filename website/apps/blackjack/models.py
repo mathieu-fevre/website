@@ -34,3 +34,18 @@ class HandDecisionEV(models.Model):
 
     def __str__(self):
         return self.hand + ' VS ' + self.bank_card
+    
+class ProbBankResults(models.Model):
+    bank_card = models.CharField(max_length=255, blank=True, null=True)
+    prob17 = models.FloatField()
+    prob18 = models.FloatField()
+    prob19 = models.FloatField()
+    prob20 = models.FloatField()
+    prob21 = models.FloatField()
+    prob_bj = models.FloatField()
+    prob_bust = models.FloatField()
+    number_of_decks = models.IntegerField(default=6)
+    number_of_simulations = models.BigIntegerField(default=10000000)
+    
+    class Meta:
+        db_table = 'blackjack_prob_bank_result'

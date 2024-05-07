@@ -5,6 +5,7 @@ app_name='blackjack'
 urlpatterns = [
     path('display_basic_strategy', views.display_basic_strategy, name='display_basic_strategy'),
     path('display_hand_decision_ev', views.display_hand_decision_ev, name='display_hand_decision_ev'),
+    path('display_bank_results', views.display_bank_results, name='display_bank_results'),
     path('compare/results', views.compare_results, name='compare_results'),
     path('compare/add', views.compare_add, name='compare_add'),
 ]

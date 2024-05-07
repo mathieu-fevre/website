@@ -1,5 +1,6 @@
 import random
 from math import floor
+
 from website.apps.blackjack.basic_strategy import create_basic_strategy, DECK_VALUE, create_basic_strategy_no_double, create_basic_strategy_no_double_no_split, create_basic_strategy_no_split
 import time
 from copy import deepcopy
@@ -12,7 +13,7 @@ import django
 django.setup()
 
 from website.apps.blackjack.card_counter import calc_true_count, create_deviation_index_dict, high_low_count, high_low_hand
-from website.apps.blackjack.models import ComparisonDecision, HandDecisionEV
+from website.apps.blackjack.models import ComparisonDecision, HandDecisionEV, ProbBankResults
 
 basic_strategy = create_basic_strategy()
 basic_strategy_no_double = create_basic_strategy_no_double()
@@ -82,7 +83,7 @@ def bank_score_value_no_deck(hand, deck):
         card = draw_card_no_deck(deck)
         hand += card
         value = value_hand(hand)
-    return value
+    return hand
 
 def who_wins(player_hand, bank_hand):
     player_hand_value = value_hand(player_hand)
@@ -649,8 +650,37 @@ def prob_result_bank(number_of_simulations, deck, card=None):
     for _ in range(1, number_of_simulations+1):
         if not card:
             card = draw_card_no_deck(deck)
-        value = bank_score_value_no_deck(card, deck)
+        hand = bank_score_value_no_deck(card, deck)
+        value = value_hand(hand)
         if value > 21:
+            result_dict['bust'] += 1
+        else:
+            result_dict[value] +=1
+    percentage_dict = {
+        
+    }
+    for key in result_dict.keys():
+        percentage_dict[key] = 100 * float(result_dict[key]) /number_of_simulations
+    return percentage_dict
+
+def prob_result_bank_with_bj(number_of_simulations, deck, card=None):
+    result_dict = {
+        17: 0, 
+        18: 0,
+        19: 0,
+        20: 0,
+        21: 0,
+        'BJ': 0,
+        'bust': 0,
+        }
+    for _ in range(1, number_of_simulations+1):
+        if not card:
+            card = draw_card_no_deck(deck)
+        hand = bank_score_value_no_deck(card, deck)
+        value = value_hand(hand)
+        if hand == 'AT' or hand == 'TA':
+            result_dict['BJ'] += 1
+        elif value > 21:
             result_dict['bust'] += 1
         else:
             result_dict[value] +=1
@@ -697,3 +727,40 @@ def launch():
     for hand in hands_list:
         for card in DECK_VALUE:
             create_new_hand_decision_ev(hand, card, decision, number_of_decks, number_of_simulations)
+            
+def compute_bank_result():
+    number_of_simulations = 10000
+    number_of_decks = 6
+    for card in DECK_VALUE:
+        deck = {'2': 4*number_of_decks, '3': 4*number_of_decks, '4': 4*number_of_decks, '5': 4*number_of_decks, '6': 4*number_of_decks, '7': 4*number_of_decks, '8': 4*number_of_decks, '9': 4*number_of_decks, 'T': 16*number_of_decks, 'A': 4*number_of_decks}
+        result_dict = prob_result_bank_with_bj(number_of_simulations, deck, card)
+        if not ProbBankResults.objects.filter(bank_card=card, number_of_decks=number_of_decks).exists():
+            ProbBankResults.objects.create(bank_card=card, prob17=result_dict[17], prob18=result_dict[18], prob19=result_dict[19], prob20=result_dict[20], prob21=result_dict[21], prob_bj=result_dict['BJ'], prob_bust=result_dict['bust'], number_of_decks=number_of_decks, number_of_simulations=number_of_simulations)
+        else:
+            obj = ProbBankResults.objects.filter(bank_card=card, number_of_decks=number_of_decks).first()
+            if number_of_simulations > obj.number_of_simulations:
+                obj.number_of_simulations = number_of_simulations
+                obj.prob17 = result_dict[17]
+                obj.prob18 = result_dict[18]
+                obj.prob19 = result_dict[19]
+                obj.prob20 = result_dict[20]
+                obj.prob21 = result_dict[21]
+                obj.prob_bj = result_dict['BJ']
+                obj.prob_bust = result_dict['bust']
+                obj.save()
+    deck = {'2': 4*number_of_decks, '3': 4*number_of_decks, '4': 4*number_of_decks, '5': 4*number_of_decks, '6': 4*number_of_decks, '7': 4*number_of_decks, '8': 4*number_of_decks, '9': 4*number_of_decks, 'T': 16*number_of_decks, 'A': 4*number_of_decks}
+    result_dict_no_card = prob_result_bank_with_bj(number_of_simulations, deck)
+    if not ProbBankResults.objects.filter(bank_card__isnull=True, number_of_decks=number_of_decks).exists():
+        ProbBankResults.objects.create(prob17=result_dict_no_card[17], prob18=result_dict_no_card[18], prob19=result_dict_no_card[19], prob20=result_dict_no_card[20], prob21=result_dict_no_card[21], prob_bj=result_dict['BJ'], prob_bust=result_dict_no_card['bust'], number_of_decks=number_of_decks, number_of_simulations=number_of_simulations)
+    else:
+        obj = ProbBankResults.objects.filter(bank_card__isnull=True, number_of_decks=number_of_decks).first()
+        if number_of_simulations > obj.number_of_simulations:
+            obj.number_of_simulations = number_of_simulations
+            obj.prob17 = result_dict_no_card[17]
+            obj.prob18 = result_dict_no_card[18]
+            obj.prob19 = result_dict_no_card[19]
+            obj.prob20 = result_dict_no_card[20]
+            obj.prob21 = result_dict_no_card[21]
+            obj.prob_bj = result_dict_no_card['BJ']
+            obj.prob_bust = result_dict_no_card['bust']
+            obj.save()
