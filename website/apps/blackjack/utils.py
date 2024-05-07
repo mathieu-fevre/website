@@ -733,7 +733,7 @@ def launch():
             create_new_hand_decision_ev(hand, card, decision, number_of_decks, number_of_simulations)
             
 def compute_bank_result():
-    number_of_simulations = 1000
+    number_of_simulations = 10000000
     number_of_decks = 6
     for card in DECK_VALUE:
         deck = {'2': 4*number_of_decks, '3': 4*number_of_decks, '4': 4*number_of_decks, '5': 4*number_of_decks, '6': 4*number_of_decks, '7': 4*number_of_decks, '8': 4*number_of_decks, '9': 4*number_of_decks, 'T': 16*number_of_decks, 'A': 4*number_of_decks}
