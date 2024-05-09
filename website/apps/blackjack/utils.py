@@ -722,12 +722,11 @@ def create_new_hand_decision_ev(hand, bank_card, decision, number_of_decks, numb
         HandDecisionEV.objects.create(hand=hand, bank_card=bank_card, decision=decision, number_of_decks=number_of_decks, key=key, number_of_simulations=number_of_simulations, ev=ev)
     db.connections.close_all()
 
-def launch():
-    # create_new_hand_decision_ev('65', '5', 'D', 6, 1000)
+def cronjob():
     number_of_simulations = 10000000
     number_of_decks = 6
-    decision = 'H'
-    hands_list = ['T74', 'T64', '982', 'T8', '98', 'T6', '87', '68', 'T3', '84', '83', '64', '342', '62', '43', '42', '32']
+    decision = '-'
+    hands_list = ['AT', 'A9', 'A8', 'A7', 'A6', 'A5', 'A4', 'A3', 'A2', 'AA', 'TT', '99', '88', '77', '66', '55', '44', '33', '22']
     for hand in hands_list:
         for card in DECK_VALUE:
             create_new_hand_decision_ev(hand, card, decision, number_of_decks, number_of_simulations)
