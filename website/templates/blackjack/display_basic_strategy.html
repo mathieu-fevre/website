@@ -125,6 +125,25 @@
     </div>
 </div>
 
+<h3>Counts</h3>
+
+<table class="BS" cellspacing="0" cellpadding="0" border="0">
+    <thead>
+        <tr>
+            <th width="60px"></th>
+            {% for card in deck_value %}
+                <th width="60px">{{ card }}</th>
+            {% endfor %}
+        </tr>
+    </thead>
+    <tbody>
+        {% for count in counts_list %}
+            {% if forloop.counter0|divisibleby:11 %}<tr>{% endif %}
+                <td bgcolor="{{ count.1 }}">{{ count.0 }}</td>
+            {% if forloop.counter|divisibleby:11 %}</tr>{% endif %}
+        {% endfor %}
+    </tbody>
+</table>
 {% endblock content %}
 
 {% block style %}
