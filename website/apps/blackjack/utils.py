@@ -370,6 +370,10 @@ def player_plays_with_bet_and_count(hands_number, deck, bet_range):
     running_count = 0
     bet = bet_range[0]
     for _ in range(1, hands_number+1):
+        if sum(deck.values()) <= float(sum(initial_deck.values()))*(1-cut_decks/number_of_decks):
+            deck = {'2': 4*number_of_decks, '3': 4*number_of_decks, '4': 4*number_of_decks, '5': 4*number_of_decks, '6': 4*number_of_decks, '7': 4*number_of_decks, '8': 4*number_of_decks, '9': 4*number_of_decks, 'T': 16*number_of_decks, 'A': 4*number_of_decks}
+            # print('\n\n\n deck reset')
+            running_count = 0
         true_count = calc_true_count(running_count, deck)
         if true_count <=0:
             bet = bet_range[0]
@@ -695,6 +699,24 @@ def prob_result_bank_with_bj(number_of_simulations, deck, card=None):
         percentage_dict[key] = 100 * float(result_dict[key]) /number_of_simulations
     return percentage_dict
 
+def prob_count_machine(count_goal, cards_seen, number_of_simulations):
+    array = [0,0]
+    for _ in range(0, number_of_simulations):
+        count = 0
+        deck = {'2': 4*number_of_decks, '3': 4*number_of_decks, '4': 4*number_of_decks, '5': 4*number_of_decks, '6': 4*number_of_decks, '7': 4*number_of_decks, '8': 4*number_of_decks, '9': 4*number_of_decks, 'T': 16*number_of_decks, 'A': 4*number_of_decks}
+        for _ in range(0, cards_seen):
+            card, deck = draw_card(deck)
+            count += high_low_count(card)
+        if count >= count_goal:
+            array[0] += 1
+        else:
+            array[1] +=1
+    result = {
+        'success': 100 * float(array[0]) /number_of_simulations,
+        'fail': 100 * float(array[1]) /number_of_simulations,
+    }
+    return result
+    
 def create_new_comparison(hand, bank_card, decision1, decision2, number_of_decks, number_of_simulations):
     deck = {'2': 4*number_of_decks, '3': 4*number_of_decks, '4': 4*number_of_decks, '5': 4*number_of_decks, '6': 4*number_of_decks, '7': 4*number_of_decks, '8': 4*number_of_decks, '9': 4*number_of_decks, 'T': 16*number_of_decks, 'A': 4*number_of_decks}
     ev1, ev2 = compare(hand, bank_card, decision1, decision2, number_of_simulations, deck)
