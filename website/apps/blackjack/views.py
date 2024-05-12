@@ -2,6 +2,7 @@ from django.forms import modelformset_factory
 from django.shortcuts import render, redirect
 
 from website.apps.blackjack.basic_strategy import DECK_VALUE, create_basic_strategy, create_basic_strategy_no_double, create_basic_strategy_no_double_no_split, create_basic_strategy_no_split
+from website.apps.blackjack.card_counter import create_deviation_index_dict
 from website.apps.blackjack.forms import ComparisonDecisionAddForm, ComparisonDecisionForm, HandDecisionEVForm
 from website.apps.blackjack.models import ComparisonDecision, HandDecisionEV, ProbBankResults
 from django.contrib import messages
@@ -12,26 +13,56 @@ from django.db.models import F
 from website.apps.blackjack.utils import create_new_comparison, create_new_hand_decision_ev, player_plays_particular_hand, player_plays_with_bet, player_plays_with_bet_and_count, value_hand
 
 def display_basic_strategy(request):
+    color_dict = {
+        '-': 'red',
+        'H': '#83f28f',
+        'S': 'pink',
+        'D': '#FCE205',
+    }
+    index_list = create_deviation_index_dict()
+    counts_list = []
     basic_strategy = create_basic_strategy()
     dec_list = []
     for total in range(21, 4, -1):
         dec_list.append('hard '+str(total))
+        counts_list.append(['hard '+str(total), '#A9A9A9'])
         for card in DECK_VALUE:
             key = 'hard '+ str(total)+','+card
             dec_list.append(basic_strategy[key])
+            if key in index_list:
+                count = index_list[key].split(',')[0]
+                color = color_dict[index_list[key].split(',')[1]]
+                counts_list.append([count, color])
+            else:
+                counts_list.append(['', '#FFFFFF'])
     for total in range(21, 12, -1):
         if total == 21:
             dec_list.append('AT')
+            counts_list.append(['AT', '#A9A9A9'])
         else:
             dec_list.append('A'+str(total-11))
+            counts_list.append(['A'+str(total-11), '#A9A9A9'])
         for card in DECK_VALUE:
             key = 'soft '+ str(total)+','+card
             dec_list.append(basic_strategy[key])
+            if key in index_list:
+                count = index_list[key].split(',')[0]
+                color = color_dict[index_list[key].split(',')[1]]
+                counts_list.append([count, color])
+            else:
+                counts_list.append(['', '#FFFFFF'])
     for card in reversed(DECK_VALUE):
         dec_list.append(card+card)
+        counts_list.append([card+card, '#A9A9A9'])
         for bank_card in DECK_VALUE: 
             key = 'pair ' + card + ',' + bank_card
             dec_list.append(basic_strategy[key])
+            if key in index_list:
+                count = index_list[key].split(',')[0]
+                color = color_dict[index_list[key].split(',')[1]]
+                counts_list.append([count, color])
+            else:
+                counts_list.append(['', '#FFFFFF'])
             
     basic_strategy_no_double = create_basic_strategy_no_double()
     dec_list_no_double = []
@@ -95,13 +126,8 @@ def display_basic_strategy(request):
         for bank_card in DECK_VALUE: 
             key = 'pair ' + card + ',' + bank_card
             dec_list_no_double_no_split.append(basic_strategy_no_double_no_split[key])
-    color_dict = {
-        '-': 'red',
-        'H': '#83f28f',
-        'S': 'pink',
-        'D': '#FCE205',
-    }
     contexts = {
+        'counts_list': counts_list,
         'dec_list': dec_list,
         'deck_value': DECK_VALUE,
         'color_dict': color_dict,
