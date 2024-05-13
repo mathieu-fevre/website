@@ -789,3 +789,55 @@ def compute_bank_result():
             obj.prob_bj = result_dict_no_card['BJ']
             obj.prob_bust = result_dict_no_card['bust']
             obj.save()
+            
+def cards_used_per_hand(hands_number, number_of_players):
+    arr = ['']*3*number_of_players
+    deck = {'2': 4*number_of_decks, '3': 4*number_of_decks, '4': 4*number_of_decks, '5': 4*number_of_decks, '6': 4*number_of_decks, '7': 4*number_of_decks, '8': 4*number_of_decks, '9': 4*number_of_decks, 'T': 16*number_of_decks, 'A': 4*number_of_decks}
+    cards_used = 0
+    for _ in range(1, hands_number+1):
+
+        if sum(deck.values()) <= float(sum(initial_deck.values()))*(1-cut_decks/number_of_decks):
+            deck = {'2': 4*number_of_decks, '3': 4*number_of_decks, '4': 4*number_of_decks, '5': 4*number_of_decks, '6': 4*number_of_decks, '7': 4*number_of_decks, '8': 4*number_of_decks, '9': 4*number_of_decks, 'T': 16*number_of_decks, 'A': 4*number_of_decks}
+        for i in range(0, number_of_players):
+            hand = ''
+            hand, deck = draw_card(deck)
+            card, deck= draw_card(deck)
+            hand += card
+            arr[3*i] = hand
+            arr[3*i+1] = ''
+            arr[3*i+2] = ''
+        bank_hand, deck = draw_card(deck)
+
+        # if hand == 'AT' or hand == 'TA':
+        #     if bank_hand == 'A' or bank_hand == 'T':
+        #         card, deck = draw_card(deck)
+        #         cards_used += 4
+        #     else:
+        #         cards_used += 3
+        # else:
+        for i in range(0, number_of_players):
+            hand1, hand2, hand3, deck, bet1, bet2, bet3 = player_plays_one_hand(arr[3*i], bank_hand, deck)
+            arr[3*i] = hand1
+            arr[3*i+1] = hand2
+            arr[3*i+2] = hand3
+        
+        if set(arr).issubset({'AT', 'TA', ''}):
+            for _hand in arr:
+                cards_used += len(_hand)
+            if bank_hand == 'A' or bank_hand == 'T':
+                card, deck = draw_card(deck)
+                cards_used += 2
+            else:
+                cards_used += 1
+        elif set(arr).issuperset({'AT'}) or set(arr).issuperset({'TA'}):
+            pass
+        else:
+            pass
+            # if (not hand1 or value_hand(hand1)>21) and (not hand2 or value_hand(hand2)>21) and (not hand3 or value_hand(hand3)>21):
+            #     cards_used += len(hand1)+ len(hand2) + len(hand3) +1
+            # print('h1 '+hand1, 'h2' + hand2, 'h3 '+ hand3, 'deck:', deck)
+            # else:
+            #     bank_hand, deck = bank_score(bank_hand, deck)
+            #     cards_used += len(hand1)+ len(hand2) + len(hand3) +len(bank_hand)
+        
+    return cards_used, float(cards_used)/hands_number
