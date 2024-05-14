@@ -616,7 +616,7 @@ def player_plays_particular_hand(hand, bank_hand, hands_number, deck):
                     gain += bet2 * who_wins(hand2, bank_hand2)
                 if hand3:
                     gain += bet3 * who_wins(hand3, bank_hand2)
-        #print('hand1: '+hand1, 'hand2: '+hand2, 'hand3: '+ hand3, 'bank_hand:' + bank_hand2, 'bet1: '+str(bet1), 'bet2: '+str(bet2), 'bet3: '+str(bet3), 'gain: '+ str(gain), deck)
+        #print('hand1: '+hand1, 'hand2: '+hand2, 'hand3: '+ hand3, 'bank_hand:' + bank_hand2, 'bet1: '+str(bet1), 'bet2: '+str(bet2), 'bet3: '+str(bet3), 'gain: '+ str(gain))
     return gain
 
 def calc_ev_particular_hand(hand, bank_hand, hands_number, deck):
@@ -747,8 +747,8 @@ def create_new_hand_decision_ev(hand, bank_card, decision, number_of_decks, numb
 def cronjob():
     number_of_simulations = 10000000
     number_of_decks = 6
-    decision = 'S'
-    hands_list = ['AA', 'TT', '99', '88', '77', '66', '55', '44', '33', '22']
+    decision = 'H'
+    hands_list = ['AT', 'A9', 'A8', 'A7', 'A6', 'A5', 'A4', 'A3', 'A2', 'AA', 'TT', '99', '88', '77', '66', '55', '44', '33', '22']
     for hand in hands_list:
         for card in DECK_VALUE:
             create_new_hand_decision_ev(hand, card, decision, number_of_decks, number_of_simulations)
@@ -830,14 +830,20 @@ def cards_used_per_hand(hands_number, number_of_players):
             else:
                 cards_used += 1
         elif set(arr).issuperset({'AT'}) or set(arr).issuperset({'TA'}):
-            pass
-        else:
-            pass
-            # if (not hand1 or value_hand(hand1)>21) and (not hand2 or value_hand(hand2)>21) and (not hand3 or value_hand(hand3)>21):
-            #     cards_used += len(hand1)+ len(hand2) + len(hand3) +1
-            # print('h1 '+hand1, 'h2' + hand2, 'h3 '+ hand3, 'deck:', deck)
-            # else:
-            #     bank_hand, deck = bank_score(bank_hand, deck)
-            #     cards_used += len(hand1)+ len(hand2) + len(hand3) +len(bank_hand)
+            for _hand in arr:
+                if 0<value_hand(_hand)<=21 and _hand:
+                    bank_hand, deck = bank_score(bank_hand, deck)
+                    break
+            for _hand in arr:
+                cards_used += len(_hand)
+            cards_used += len(bank_hand)
+        else: # no bj
+            for _hand in arr:
+                if 0<value_hand(_hand)<=21:
+                    bank_hand, deck = bank_score(bank_hand, deck)
+                    break
+            for _hand in arr:
+                cards_used += len(_hand)
+            cards_used += len(bank_hand)
         
     return cards_used, float(cards_used)/hands_number
