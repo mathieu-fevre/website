@@ -10,7 +10,7 @@ from multiprocessing import Process
 from django import db
 from django.db.models import F
 
-from website.apps.blackjack.utils import create_new_comparison, create_new_hand_decision_ev, player_plays_particular_hand, player_plays_with_bet, player_plays_with_bet_and_count, value_hand
+from website.apps.blackjack.utils import create_new_comparison, create_new_hand_decision_ev, number_of_hands_per_shoe, player_plays_particular_hand, player_plays_with_bet, player_plays_with_bet_and_count, value_hand
 
 def display_basic_strategy(request):
     color_dict = {
