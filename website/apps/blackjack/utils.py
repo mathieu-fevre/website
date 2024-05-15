@@ -790,20 +790,76 @@ def compute_bank_result():
             obj.prob_bust = result_dict_no_card['bust']
             obj.save()
             
-def number_of_hands_per_shoe(number_of_decks, cut_decks):
+def number_of_hands_per_shoe(number_of_decks, cut_decks, number_of_players=1):
     nb_hands = 0
     deck = {'2': 4*number_of_decks, '3': 4*number_of_decks, '4': 4*number_of_decks, '5': 4*number_of_decks, '6': 4*number_of_decks, '7': 4*number_of_decks, '8': 4*number_of_decks, '9': 4*number_of_decks, 'T': 16*number_of_decks, 'A': 4*number_of_decks}
     while sum(deck.values()) >= float(sum(initial_deck.values()))*(1-cut_decks/number_of_decks):
-        hand, deck = draw_card(deck)
-        bank_hand, deck = draw_card(deck)
-        card, deck= draw_card(deck)
-        hand += card
+        hands_array = ['']*3*number_of_players
+        for i in range(0, number_of_players):
+            hand, deck = draw_card(deck)
+            bank_hand, deck = draw_card(deck)
+            card, deck= draw_card(deck)
+            hand += card
+            hands_array[3*i] = hand
         nb_hands += 1
-        hand1, hand2, hand3, deck, bet1, bet2, bet3 = player_plays_one_hand(hand, bank_hand, deck)
-        if hand1 in ['AT', 'TA'] and not hand2 and not hand3:
-            if bank_hand == 'A' or bank_hand == 'T':
-                _, deck = draw_card(deck)
-        elif (hand1 and value_hand(hand1)<=21) or (hand2 and value_hand(hand2)<=21) or (hand3 and value_hand(hand3)<=21):
+        for i in range(0, number_of_players):
+            hand1, hand2, hand3, deck, bet1, bet2, bet3 = player_plays_one_hand(hands_array[3*i], bank_hand, deck)
+            hands_array[3*i] = hand1
+            hands_array[3*i+1] = hand2
+            hands_array[3*i+2] = hand3
+            
+        if any(0<value_hand(h)<=20 or (value_hand(h)==21 and len(h)>2) for h in hands_array):
             bank_hand, deck = bank_score(bank_hand, deck)
-        print('hand1: '+hand1, 'hand2: '+hand2, 'hand3: '+ hand3, 'bank_hand:' + bank_hand, 'bet1: '+str(bet1), 'bet2: '+str(bet2), 'bet3: '+str(bet3), deck)
+        elif 'AT' in hands_array or 'TA' in hands_array:
+            indices = [i for i, x in enumerate(hands_array) if x in ['TA', 'AT']]
+            BJ_only_flag = True
+            for index in indices:
+                BJ_only_flag &= (index % 3 == 0 and not hands_array[index+1] and not hands_array[index+2])
+            if BJ_only_flag:
+                if bank_hand in ['A', 'T']:
+                    card, deck = draw_card(deck)
+                    bank_hand += card
+            else:
+                bank_hand, deck = bank_score(bank_hand, deck)
+        # print('hands: ', hands_array, 'bank_hand: '+bank_hand, deck)
     return nb_hands
+
+def average_number_of_hands_per_shoe(number_of_decks, cut_decks, number_of_simulations, number_of_players=1):
+    tot = 0
+    for _ in range(0,number_of_simulations):
+        tot += number_of_hands_per_shoe(number_of_decks, cut_decks, number_of_players)
+    return float(tot)/number_of_simulations
+
+def average_number_of_cards_first_hand(number_of_decks, number_of_simulations, number_of_players=1):
+    tot = 0
+    for _ in range(0,number_of_simulations):
+        deck = {'2': 4*number_of_decks, '3': 4*number_of_decks, '4': 4*number_of_decks, '5': 4*number_of_decks, '6': 4*number_of_decks, '7': 4*number_of_decks, '8': 4*number_of_decks, '9': 4*number_of_decks, 'T': 16*number_of_decks, 'A': 4*number_of_decks}
+        hands_array = ['']*3*number_of_players
+        for i in range(0, number_of_players):
+            hand, deck = draw_card(deck)
+            bank_hand, deck = draw_card(deck)
+            card, deck= draw_card(deck)
+            hand += card
+            hands_array[3*i] = hand
+        for i in range(0, number_of_players):
+            hand1, hand2, hand3, deck, bet1, bet2, bet3 = player_plays_one_hand(hands_array[3*i], bank_hand, deck)
+            hands_array[3*i] = hand1
+            hands_array[3*i+1] = hand2
+            hands_array[3*i+2] = hand3
+        if any(0<value_hand(h)<=20 or (value_hand(h)==21 and len(h)>2) for h in hands_array):
+            bank_hand, deck = bank_score(bank_hand, deck)
+        elif 'AT' in hands_array or 'TA' in hands_array:
+            indices = [i for i, x in enumerate(hands_array) if x in ['TA', 'AT']]
+            BJ_only_flag = True
+            for index in indices:
+                BJ_only_flag &= (index % 3 == 0 and not hands_array[index+1] and not hands_array[index+2])
+            if BJ_only_flag:
+                if bank_hand in ['A', 'T']:
+                    card, deck = draw_card(deck)
+                    bank_hand += card
+            else:
+                bank_hand, deck = bank_score(bank_hand, deck)
+        for h in hands_array:
+            tot += len(h)
+        tot += len(bank_hand)
+    return float(tot)/number_of_simulations

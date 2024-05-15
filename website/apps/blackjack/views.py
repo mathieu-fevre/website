@@ -3,14 +3,14 @@ from django.shortcuts import render, redirect
 
 from website.apps.blackjack.basic_strategy import DECK_VALUE, create_basic_strategy, create_basic_strategy_no_double, create_basic_strategy_no_double_no_split, create_basic_strategy_no_split
 from website.apps.blackjack.card_counter import create_deviation_index_dict
-from website.apps.blackjack.forms import ComparisonDecisionAddForm, ComparisonDecisionForm, HandDecisionEVForm
+from website.apps.blackjack.forms import CompDecForm, ComparisonDecisionAddForm, ComparisonDecisionForm, HandDecisionEVForm
 from website.apps.blackjack.models import ComparisonDecision, HandDecisionEV, ProbBankResults
 from django.contrib import messages
 from multiprocessing import Process
 from django import db
-from django.db.models import F
+from django.db.models import Q
 
-from website.apps.blackjack.utils import create_new_comparison, create_new_hand_decision_ev, number_of_hands_per_shoe, player_plays_particular_hand, player_plays_with_bet, player_plays_with_bet_and_count, value_hand
+from website.apps.blackjack.utils import average_number_of_cards_first_hand, average_number_of_hands_per_shoe, create_new_comparison, create_new_hand_decision_ev, number_of_hands_per_shoe, player_plays_particular_hand, player_plays_with_bet, player_plays_with_bet_and_count, value_hand
 
 def display_basic_strategy(request):
     color_dict = {
@@ -138,6 +138,7 @@ def display_basic_strategy(request):
     return render(request, 'blackjack/display_basic_strategy.html', contexts)
 
 def display_hand_decision_ev(request):
+    search_data = []
     keys_stand = []
     keys_hit = []
     keys_double = []
@@ -155,29 +156,48 @@ def display_hand_decision_ev(request):
         keys_hit.append('pair '+ card)
         keys_double.append('pair '+ card)
         keys_split.append('pair '+ card)
-    form = HandDecisionEVForm()
+    form = CompDecForm(initial={'number_of_decks': 6, 'number_of_simulations': 10000000})
     if request.POST:
         if 'compute' in request.POST:
-            form = HandDecisionEVForm(request.POST)
+            form = CompDecForm(request.POST)
             if form.is_valid():
-                db.connections.close_all()
                 hand = form.cleaned_data['hand']
+                key = form.cleaned_data['key']
                 bank_card = form.cleaned_data['bank_card']
-                decision = form.cleaned_data['decision']
-                number_of_decks = 6
+                decision1 = form.cleaned_data['decision1']
+                decision2 = form.cleaned_data['decision2']
+                number_of_decks = form.cleaned_data['number_of_decks']
                 number_of_simulations = form.cleaned_data['number_of_simulations']
-                obj = HandDecisionEV.objects.filter(hand=hand, decision=decision, bank_card=bank_card, number_of_decks=number_of_decks, number_of_simulations__gte=number_of_simulations)
-                if obj.exists():
-                    messages.add_message(request, messages.ERROR, 'This simulation already exists with of number of simulations of ' + str(obj.first().number_of_simulations) +'.')
+                q1 = Q(bank_card=bank_card, decision=decision1, number_of_decks=number_of_decks, number_of_simulations__gte=number_of_simulations)
+                q2 = Q(bank_card=bank_card, decision=decision2, number_of_decks=number_of_decks, number_of_simulations__gte=number_of_simulations)
+                if hand:
+                    q1 &= Q(hand=hand)
+                    q2 &= Q(hand=hand)
+                elif key:
+                    q1 &= Q(key=key)
+                    q2 &= Q(key=key)
+                obj1 = HandDecisionEV.objects.filter(q1).first()
+                obj2 = HandDecisionEV.objects.filter(q2).first()
+                if obj1 and obj2:
+                    if obj1.hand == obj2.hand:
+                        search_data.append(obj1.hand)
+                    else:
+                        search_data.append('N/A')
+                    search_data.append(obj1.key)
+                    search_data.append(obj1.bank_card)
+                    search_data.append(obj1.decision)
+                    search_data.append(obj1.ev)
+                    search_data.append(obj2.decision)
+                    search_data.append(obj2.ev)
+                    search_data.append(obj2.number_of_decks)
+                    search_data.append(min(obj1.number_of_simulations, obj2.number_of_simulations))
                 else:
-                    # p = Process(target=create_new_hand_decision_ev, args=(hand, bank_card, decision, number_of_decks, number_of_simulations))
-                    # p.start()
-                    # messages.add_message(request, messages.SUCCESS, 'Simulations started')
-                    messages.add_message(request, messages.SUCCESS, 'service In construction')
+                    messages.add_message(request, messages.SUCCESS, 'Data is missing for this comparison.')
                     return redirect(request.get_full_path())
             else:
                 messages.add_message(request, messages.ERROR, 'Error in the form')
     contexts = {
+        'search_data': search_data,
         'form': form,
         'keys_stand': keys_stand,
         'keys_hit': keys_hit,

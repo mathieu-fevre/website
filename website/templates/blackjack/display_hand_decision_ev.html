@@ -13,28 +13,65 @@
 
 {% block content %}
 {% include "messages.html" %}
-<h3>1. calc new EV</h3>
+<h3>1. Comapre 2 decisions</h3>
 <form method="post">
     {% csrf_token %}
     <table class="table_list" width="300px">
         <thead>
             <tr>
                 <th>Hand</th>
+                <th>Key</th>
                 <th>Bank card</th>
-                <th>Decision</th>
+                <th>Decision 1</th>
+                <th>Decision 2</th>
+                <th>Number of decks</th>
                 <th>Number of simulations</th>
             </tr>
         </thead>
         <tbody>
             <tr>
                 <td>{{ form.hand }}</td>
+                <td>{{ form.key }}</td>
                 <td>{{ form.bank_card }}</td>
-                <td>{{ form.decision }}</td>
+                <td>{{ form.decision1 }}</td>
+                <td>{{ form.decision2 }}</td>
+                <td>{{ form.number_of_decks }}</td>
                 <td>{{ form.number_of_simulations }}</td>
             </tr>
         </tbody>
     </table>
-    <button type="submit" name="compute">Compute</button>
+    <button type="submit" name="compute">Search</button>
+<br><br>
+{% if search_data %}
+<table class="table_list">
+    <thead>
+        <tr>
+            <th>Hand</th>
+            <th>Key</th>
+            <th>Bank card</th>
+            <th>Decision 1</th>
+            <th>EV 1</th>
+            <th>Decision 2</th>
+            <th>EV 2</th>
+            <th>Number of decks</th>
+            <th>Number of simulations</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>{{ search_data.0 }}</td>
+            <td>{{ search_data.1 }}</td>
+            <td>{{ search_data.2 }}</td>
+            <td>{{ search_data.3 }}</td>
+            <td>{{ search_data.4|floatformat:"2" }}%</td>
+            <td>{{ search_data.5 }}</td>
+            <td>{{ search_data.6|floatformat:"2" }}%</td>
+            <td>{{ search_data.7 }}</td>
+            <td>{{ search_data.8 }}</td>
+        </tr>
+    </tbody>
+</table>
+{% endif %}
 </form>
 <br>
 <h3>2.Tables of EVs</h3>
