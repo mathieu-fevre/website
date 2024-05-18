@@ -747,7 +747,7 @@ def cronjob():
     number_of_simulations = 10000000
     number_of_decks = 6
     decision = 'D'
-    hands_list = ['AA', 'TT', '99', '88', '77', '66', '55', '44', '33', '22']
+    hands_list = ['23', '42', '43', '53', '63', '64', '74', '83', '84', '94', 'T4', 'T5', 'T6', 'T7']
     for hand in hands_list:
         for card in DECK_VALUE:
             create_new_hand_decision_ev(hand, card, decision, number_of_decks, number_of_simulations)
