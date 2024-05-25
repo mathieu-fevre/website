@@ -153,7 +153,7 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 DATA_UPLOAD_MAX_NUMBER_FIELDS = 10000
 
 CRONJOBS = [
-    ('59 00 26 05 *', 'website.apps.blackjack.utils.cronjob')
+    ('00 01 26 05 *', 'website.apps.blackjack.utils.cronjob')
 ]
 
 # If settings_local.py is available, then local settings are used
