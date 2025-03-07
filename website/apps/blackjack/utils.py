@@ -616,7 +616,7 @@ def player_plays_particular_hand(hand, bank_hand, hands_number, deck):
                     gain += bet2 * who_wins(hand2, bank_hand2)
                 if hand3:
                     gain += bet3 * who_wins(hand3, bank_hand2)
-        print('hand1: '+hand1, 'hand2: '+hand2, 'hand3: '+ hand3, 'bank_hand:' + bank_hand2, 'bet1: '+str(bet1), 'bet2: '+str(bet2), 'bet3: '+str(bet3), 'gain: '+ str(gain), deck)
+        # print('hand1: '+hand1, 'hand2: '+hand2, 'hand3: '+ hand3, 'bank_hand:' + bank_hand2, 'bet1: '+str(bet1), 'bet2: '+str(bet2), 'bet3: '+str(bet3), 'gain: '+ str(gain), deck)
     return gain
 
 def calc_ev_particular_hand(hand, bank_hand, hands_number, deck):
@@ -744,12 +744,13 @@ def create_new_hand_decision_ev(hand, bank_card, decision, number_of_decks, numb
         obj.save()
     else:
         HandDecisionEV.objects.create(hand=hand, bank_card=bank_card, decision=decision, number_of_decks=number_of_decks, key=key, number_of_simulations=number_of_simulations, ev=ev)
-
+    db.connections.close_all()
+    
 def cronjob():
     number_of_simulations = 10000000
     number_of_decks = 6
-    decision = 'D'
-    hands_list = ['T8', 'T9']
+    decision = 'H'
+    hands_list = ['T6', 'T5', 'T4', 'T3', 'T2']
     for hand in hands_list:
         for card in DECK_VALUE:
             create_new_hand_decision_ev(hand, card, decision, number_of_decks, number_of_simulations)
