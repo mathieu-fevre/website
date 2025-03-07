@@ -61,10 +61,9 @@ class HandDecisionEVForm(forms.ModelForm):
     
 class CompDecForm(forms.Form):
     hand = forms.CharField(widget=forms.TextInput(attrs={'size': 10}), required=False)
-    key = forms.CharField(widget=forms.TextInput(attrs={'size': 10}), required=False)
+    # key = forms.CharField(widget=forms.TextInput(attrs={'size': 10}), required=False)
     bank_card = forms.CharField(widget=forms.TextInput(attrs={'size': 10}))
-    decision1 = forms.CharField(widget=forms.TextInput(attrs={'size': 10}))
-    decision2 = forms.CharField(widget=forms.TextInput(attrs={'size': 10}))
+    decision = forms.CharField(widget=forms.TextInput(attrs={'size': 10}))
     number_of_decks = forms.CharField(widget=forms.TextInput(attrs={'size': 10}))
     number_of_simulations = forms.CharField(widget=forms.TextInput(attrs={'size': 10}))
     

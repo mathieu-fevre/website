@@ -13,17 +13,17 @@
 
 {% block content %}
 {% include "messages.html" %}
-<h3>1. Comapre 2 decisions</h3>
+<h3>1. Add an EV</h3>
 <form method="post">
     {% csrf_token %}
     <table class="table_list" width="300px">
         <thead>
             <tr>
                 <th>Hand</th>
-                <th>Key</th>
+                {% comment %} <th>Key</th> {% endcomment %}
                 <th>Bank card</th>
-                <th>Decision 1</th>
-                <th>Decision 2</th>
+                <th>Decision</th>
+                {% comment %} <th>Decision 2</th> {% endcomment %}
                 <th>Number of decks</th>
                 <th>Number of simulations</th>
             </tr>
@@ -31,10 +31,10 @@
         <tbody>
             <tr>
                 <td>{{ form.hand }}</td>
-                <td>{{ form.key }}</td>
+                {% comment %} <td>{{ form.key }}</td> {% endcomment %}
                 <td>{{ form.bank_card }}</td>
-                <td>{{ form.decision1 }}</td>
-                <td>{{ form.decision2 }}</td>
+                <td>{{ form.decision }}</td>
+                {% comment %} <td>{{ form.decision2 }}</td> {% endcomment %}
                 <td>{{ form.number_of_decks }}</td>
                 <td>{{ form.number_of_simulations }}</td>
             </tr>

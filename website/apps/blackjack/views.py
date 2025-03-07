@@ -162,38 +162,40 @@ def display_hand_decision_ev(request):
             form = CompDecForm(request.POST)
             if form.is_valid():
                 hand = form.cleaned_data['hand']
-                key = form.cleaned_data['key']
+                # key = form.cleaned_data['key']
                 bank_card = form.cleaned_data['bank_card']
-                decision1 = form.cleaned_data['decision1']
-                decision2 = form.cleaned_data['decision2']
-                number_of_decks = form.cleaned_data['number_of_decks']
-                number_of_simulations = form.cleaned_data['number_of_simulations']
-                q1 = Q(bank_card=bank_card, decision=decision1, number_of_decks=number_of_decks, number_of_simulations__gte=number_of_simulations)
-                q2 = Q(bank_card=bank_card, decision=decision2, number_of_decks=number_of_decks, number_of_simulations__gte=number_of_simulations)
-                if hand:
-                    q1 &= Q(hand=hand)
-                    q2 &= Q(hand=hand)
-                elif key:
-                    q1 &= Q(key=key)
-                    q2 &= Q(key=key)
-                obj1 = HandDecisionEV.objects.filter(q1).first()
-                obj2 = HandDecisionEV.objects.filter(q2).first()
-                if obj1 and obj2:
-                    if obj1.hand == obj2.hand:
-                        search_data.append(obj1.hand)
-                    else:
-                        search_data.append('N/A')
-                    search_data.append(obj1.key)
-                    search_data.append(obj1.bank_card)
-                    search_data.append(obj1.decision)
-                    search_data.append(obj1.ev)
-                    search_data.append(obj2.decision)
-                    search_data.append(obj2.ev)
-                    search_data.append(obj2.number_of_decks)
-                    search_data.append(min(obj1.number_of_simulations, obj2.number_of_simulations))
-                else:
-                    messages.add_message(request, messages.SUCCESS, 'Data is missing for this comparison.')
-                    return redirect(request.get_full_path())
+                decision = form.cleaned_data['decision']
+                number_of_decks = int(form.cleaned_data['number_of_decks'])
+                number_of_simulations = int(form.cleaned_data['number_of_simulations'])
+                p = Process(target=create_new_hand_decision_ev, args=(hand, bank_card, decision, number_of_decks, number_of_simulations))
+                p.start()
+                messages.add_message(request, messages.SUCCESS, 'Simulations started')
+                # q1 = Q(bank_card=bank_card, decision=decision1, number_of_decks=number_of_decks, number_of_simulations__gte=number_of_simulations)
+                # q2 = Q(bank_card=bank_card, decision=decision2, number_of_decks=number_of_decks, number_of_simulations__gte=number_of_simulations)
+                # if hand:
+                #     q1 &= Q(hand=hand)
+                #     q2 &= Q(hand=hand)
+                # elif key:
+                #     q1 &= Q(key=key)
+                #     q2 &= Q(key=key)
+                # obj1 = HandDecisionEV.objects.filter(q1).first()
+                # obj2 = HandDecisionEV.objects.filter(q2).first()
+                # if obj1 and obj2:
+                #     if obj1.hand == obj2.hand:
+                #         search_data.append(obj1.hand)
+                #     else:
+                #         search_data.append('N/A')
+                #     search_data.append(obj1.key)
+                #     search_data.append(obj1.bank_card)
+                #     search_data.append(obj1.decision)
+                #     search_data.append(obj1.ev)
+                #     search_data.append(obj2.decision)
+                #     search_data.append(obj2.ev)
+                #     search_data.append(obj2.number_of_decks)
+                #     search_data.append(min(obj1.number_of_simulations, obj2.number_of_simulations))
+                # else:
+                #     messages.add_message(request, messages.SUCCESS, 'Data is missing for this comparison.')
+                return redirect(request.get_full_path())
             else:
                 messages.add_message(request, messages.ERROR, 'Error in the form')
     contexts = {
