@@ -752,7 +752,7 @@ def cronjob():
         for card in DECK_VALUE:
             create_new_hand_decision_ev(hand, card, decision, number_of_decks, number_of_simulations)
             
-def compute_bank_result():
+def compute_bank_result_per_card():
     number_of_simulations = 10000000
     number_of_decks = 6
     for card in DECK_VALUE:
@@ -772,13 +772,17 @@ def compute_bank_result():
                 obj.prob_bj = result_dict['BJ']
                 obj.prob_bust = result_dict['bust']
                 obj.save()
+
+def compute_bank_result_overall():
+    number_of_decks = 6
+    number_of_simulations = 10000000
     deck = {'2': 4*number_of_decks, '3': 4*number_of_decks, '4': 4*number_of_decks, '5': 4*number_of_decks, '6': 4*number_of_decks, '7': 4*number_of_decks, '8': 4*number_of_decks, '9': 4*number_of_decks, 'T': 16*number_of_decks, 'A': 4*number_of_decks}
     result_dict_no_card = prob_result_bank_with_bj(number_of_simulations, deck)
     if not ProbBankResults.objects.filter(bank_card__isnull=True, number_of_decks=number_of_decks).exists():
-        ProbBankResults.objects.create(prob17=result_dict_no_card[17], prob18=result_dict_no_card[18], prob19=result_dict_no_card[19], prob20=result_dict_no_card[20], prob21=result_dict_no_card[21], prob_bj=result_dict['BJ'], prob_bust=result_dict_no_card['bust'], number_of_decks=number_of_decks, number_of_simulations=number_of_simulations)
+        ProbBankResults.objects.create(prob17=result_dict_no_card[17], prob18=result_dict_no_card[18], prob19=result_dict_no_card[19], prob20=result_dict_no_card[20], prob21=result_dict_no_card[21], prob_bj=result_dict_no_card['BJ'], prob_bust=result_dict_no_card['bust'], number_of_decks=number_of_decks, number_of_simulations=number_of_simulations)
     else:
         obj = ProbBankResults.objects.filter(bank_card__isnull=True, number_of_decks=number_of_decks).first()
-        if number_of_simulations > obj.number_of_simulations:
+        if number_of_simulations >= obj.number_of_simulations:
             obj.number_of_simulations = number_of_simulations
             obj.prob17 = result_dict_no_card[17]
             obj.prob18 = result_dict_no_card[18]
