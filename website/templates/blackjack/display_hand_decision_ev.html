@@ -13,7 +13,19 @@
 
 {% block content %}
 {% include "messages.html" %}
-<h3>1. Add an EV</h3>
+<h3>1. Explanations</h3>
+<p>
+    Player's hand is written as a string of the cards. <br>
+    Bank card is written as a string among (A, T, 9, 8, 7, 6, 5, 4, 3, 2).<br>
+    Decision can be :
+    <ul>
+        <li>- for Stand</li>
+        <li>H for Hit</li>
+        <li>D for Double down</li>
+        <li>S for Split</li>
+    </ul>
+</p>
+<h3>2. Add an EV</h3>
 <form method="post">
     {% csrf_token %}
     <table class="table_list" width="300px">
@@ -40,7 +52,7 @@
             </tr>
         </tbody>
     </table>
-    <button type="submit" name="compute">Search</button>
+    <button type="submit" name="compute">Compute</button>
 <br><br>
 {% if search_data %}
 <table class="table_list">
@@ -74,7 +86,7 @@
 {% endif %}
 </form>
 <br>
-<h3>2.Tables of EVs</h3>
+<h3>3.Tables of EVs</h3>
 <div class="row">
     <div class="column">
         <h4>Ev of stand</h4>
