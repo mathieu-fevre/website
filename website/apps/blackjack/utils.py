@@ -682,9 +682,11 @@ def prob_result_bank_with_bj(number_of_simulations, deck, card=None):
     for _ in range(1, number_of_simulations+1):
         deck = {'2': 4*number_of_decks, '3': 4*number_of_decks, '4': 4*number_of_decks, '5': 4*number_of_decks, '6': 4*number_of_decks, '7': 4*number_of_decks, '8': 4*number_of_decks, '9': 4*number_of_decks, 'T': 16*number_of_decks, 'A': 4*number_of_decks}
         if not card:
-            card = draw_card_no_deck(deck)
-        deck[card] -= 1
-        hand = bank_score_value_no_deck(card, deck)
+            temp_card = draw_card_no_deck(deck)
+        else:
+            temp_card = card
+        deck[temp_card] -= 1
+        hand = bank_score_value_no_deck(temp_card, deck)
         value = value_hand(hand)
         if hand == 'AT' or hand == 'TA':
             result_dict['BJ'] += 1
