@@ -241,10 +241,10 @@ def compare_add(request):
             formset = Formset(request.POST)
             if formset.is_valid():
                 formset.save()
-                messages.add_message(request, messages.SUCCESS, 'Comparison added !')
+                messages.add_message(request, messages.SUCCESS, 'Comparaison added !')
                 return redirect(request.get_full_path())
             else:
-                messages.add_message(request, messages.ERROR, 'Comparison failed !')
+                messages.add_message(request, messages.ERROR, 'Comparaison failed !')
     contexts = {
         'formset': formset
     }

@@ -27,7 +27,7 @@ SECRET_KEY = 'django-insecure-4!yvda@5a-_vl9q4s9)q7lybhv^0_xh!2(cgo1a_z&yv#ykyt*
 DEBUG = False
 
 ALLOWED_HOSTS = ['*']
-CSRF_TRUSTED_ORIGINS=['http://18.183.223.182', 'https://18.183.223.182']
+CSRF_TRUSTED_ORIGINS=['http://35.180.75.122', 'https://35.180.75.122']
 
 
 # Application definition
@@ -116,7 +116,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'Asia/Tokyo'
+TIME_ZONE = 'Europe/Paris'
 
 USE_I18N = True
 
