@@ -750,7 +750,7 @@ def create_new_hand_decision_ev(hand, bank_card, decision, number_of_decks, numb
     db.connections.close_all()
     
 def cronjob():
-    number_of_simulations = 10000000
+    number_of_simulations = 1000000
     number_of_decks = 6
     decision_list = ['H', 'S', '-', 'D']
     hands_list = ['22', '33', '44', '55', '66', '77', '88', '99', 'TT', 'AA']
