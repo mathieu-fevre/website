@@ -8,8 +8,12 @@ Hi {{ user.username }}!
 <form action="{% url 'logout' %}" method="post">
   {% csrf_token %}
   <button type="submit">Log Out</button>
+  <p>
+    <a href="{% url 'blackjack:display_basic_strategy' %}">Let's start with BlackJack Basic Strategy</a>
+  </p>
 </form>
 <p>Nanami is cute</p>
+
 {% else %}
 <p>You are not logged in</p>
 <a href="{% url 'login' %}">Log In</a>
