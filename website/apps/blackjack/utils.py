@@ -517,7 +517,10 @@ def get_trajectory_list_with_bet(bankroll, bet, hands_number, deck):
             return bankroll_list, i
     return bankroll_list, hands_number
 
-def trace_trajectory_with_bet(bankroll, bet, hands_number, deck):
+def trace_trajectory_with_bet(bankroll, bet, hands_number, deck=None):
+    if not deck:
+        deck = {'2': 4*number_of_decks, '3': 4*number_of_decks, '4': 4*number_of_decks, '5': 4*number_of_decks, '6': 4*number_of_decks, '7': 4*number_of_decks, '8': 4*number_of_decks, '9': 4*number_of_decks, 'T': 16*number_of_decks, 'A': 4*number_of_decks}
+
     bankroll_list, i = get_trajectory_list_with_bet(bankroll, bet, hands_number, deck)
     plt.plot(range(1, len(bankroll_list)+1), bankroll_list)
     plt.title("Bankroll evolution with bet: "+str(bet))
@@ -749,11 +752,12 @@ def create_new_hand_decision_ev(hand, bank_card, decision, number_of_decks, numb
 def cronjob():
     number_of_simulations = 10000000
     number_of_decks = 6
-    decision = 'H'
-    hands_list = ['T6', 'T5', 'T4', 'T3', 'T2']
-    for hand in hands_list:
-        for card in DECK_VALUE:
-            create_new_hand_decision_ev(hand, card, decision, number_of_decks, number_of_simulations)
+    decision_list = ['H', 'S', '-', 'D']
+    hands_list = ['22', '33', '44', '55', '66', '77', '88', '99', 'TT', 'AA']
+    for decision in decision_list:
+        for hand in hands_list:
+            for card in DECK_VALUE:
+                create_new_hand_decision_ev(hand, card, decision, number_of_decks, number_of_simulations)
             
 def compute_bank_result_per_card():
     number_of_simulations = 10000000
