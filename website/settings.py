@@ -27,7 +27,11 @@ SECRET_KEY = 'django-insecure-4!yvda@5a-_vl9q4s9)q7lybhv^0_xh!2(cgo1a_z&yv#ykyt*
 DEBUG = False
 
 ALLOWED_HOSTS = ['*']
-CSRF_TRUSTED_ORIGINS=['http://35.180.75.122', 'https://35.180.75.122', 'http://ec2-35-180-75-122.eu-west-3.compute.amazonaws.com/',  'https://ec2-35-180-75-122.eu-west-3.compute.amazonaws.com/']
+CSRF_TRUSTED_ORIGINS = ['http://35.180.75.122',
+                        'https://35.180.75.122',
+                        'http://ec2-35-180-75-122.eu-west-3.compute.amazonaws.com/', 
+                        'https://ec2-35-180-75-122.eu-west-3.compute.amazonaws.com/',
+                        'http://localhost:3000']
 
 
 # Application definition
@@ -40,9 +44,11 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django_crontab',
+    "corsheaders",
     
     'website.apps.core',
     'website.apps.blackjack',
+    'website.apps.todolist',
 ]
 
 MIDDLEWARE = [
@@ -53,6 +59,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    "corsheaders.middleware.CorsMiddleware",
 ]
 
 ROOT_URLCONF = 'website.urls'
@@ -76,6 +83,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'website.wsgi.application'
 
+CORS_ALLOW_ALL_ORIGINS = True
 
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases

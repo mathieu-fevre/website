@@ -25,6 +25,7 @@ urlpatterns = [
     path("accounts/", include("django.contrib.auth.urls")),
     path("", TemplateView.as_view(template_name="home.html"), name="home"),
     path('blackjack/', include('website.apps.blackjack.urls', namespace='blackjack')),
+    path('todolist/', include('website.apps.todolist.urls', namespace='todolist')),
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
