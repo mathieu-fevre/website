@@ -44,11 +44,13 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django_crontab',
-    "corsheaders",
+    'corsheaders',
     
     'website.apps.core',
     'website.apps.blackjack',
     'website.apps.todolist',
+    'website.apps.poker',
+    'website.apps.pokerOddsCalc',
 ]
 
 MIDDLEWARE = [
