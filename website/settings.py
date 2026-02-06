@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'website.apps.core',
     'website.apps.blackjack',
     'website.apps.todolist',
+    'website.apps.homm3',
 ]
 
 MIDDLEWARE = [

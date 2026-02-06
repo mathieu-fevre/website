@@ -26,6 +26,7 @@ urlpatterns = [
     path("", TemplateView.as_view(template_name="home.html"), name="home"),
     path('blackjack/', include('website.apps.blackjack.urls', namespace='blackjack')),
     path('todolist/', include('website.apps.todolist.urls', namespace='todolist')),
+    path('homm3/', include('website.apps.homm3.urls', namespace='homm3')),
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
